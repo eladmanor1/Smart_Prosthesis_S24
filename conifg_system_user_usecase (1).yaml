@@ -1,0 +1,115 @@
+# file type options: {'config_system','debug_mode'}
+file_type: config_system
+
+# inputs type options: {'BLE_input', 'analog_input', 'digital_input'}
+# transform type options: {'linear'}
+inputs:
+  - name: 'leg_pressure_sensor' # string (required)
+    type: 'BLE_input' # string (required)
+    transform: # optional (default -> linear (a=1 , b=0))
+      type: 'linear' # string (required)
+      # y = aX + b
+      a: 2 # int (required)
+      b: 10 # int (optional -> default = 0)
+
+  - name: 'finger_1_sense' # string (required)
+    type: 'analog_input' # string (required)
+        pin: 1 # int (reqiured for analog/digital input only)
+    transform: # optional (default -> linear (a=1 , b=0))
+      type: 'linear'
+      # y = aX + b
+      a: 1 # int (required)
+      b: 14 # int (optional -> default = 0)
+
+  - name: 'button' # string (required)
+    type: 'digital_input' # string (required)
+        pin: 2 # int (reqiured for analog/digital input only)
+
+
+# --- do we want to let the admin define itself the "motors"(output recievers)? , in this way we support general system,
+# --- output_reciever types: for example: {'DC_motor','servo_motor' ,'stepper_motor , 'led','RGB'} , but actually it can be anything, defined by the user's need
+# output_recievers: 
+#
+  - name: 'finger_1' # string (required)
+    type: 'DC_motor' # string (required)
+      pin_IN1: 4 # int (required)
+      pin_IN2: 5 # int (required)
+
+  - name: 'finger_2' # string (required)
+    type: 'DC_motor' # string (required)
+      pin_IN1: 6 # int (required)
+      pin_IN2: 7 # int (required)
+      
+  - name: 'wrist' # string (required)
+    type: 'servo_motor' # string (required)
+      pin: 8 # int (required)
+
+  - name: 'led_1' # string (required)
+    type: 'led'
+      pin: 6
+
+# output type options: {'continues', 'predefined_sequence'}
+# output reciever options: {'finger_1', 'finger_2', 'finger_3', 'finger_4', 'wrist'} // depends on output_recievers that been defiend
+# output direction options: {0, 1}
+outputs: 
+  - name: 'close_two_fingers_with_speed' # string (required)
+    type: 'continuous' # string (required)
+    parameter_1: 'close_speed'  # string (optional)
+    receiver: 'finger_1' # string (must be defined in the output_recievers section)
+        direction: 1 # int
+        speed: parameter_1 # int
+    receiver: 'finger_2' # string (must be defined in the output_recievers section)
+            direction: 1 # int
+            speed: parameter_1 # int
+
+  - name: 'close_and_open_finger_1' # string (required)
+    type: 'predefined_sequence' # string (required)
+    parameter_1: 'finger_1_sense' # string (optional)
+        reciever: 'finger_1'  # string (required)
+            direction: 1 # int (required)
+            speed: 30 # int (required)
+            finish: "parameter_1 > 100" # string (required) - legal conditional statment, composed of only consts , relations and parameters of the output.
+            direction: 0 # int (required)
+            speed: 30 # int (required)
+            finish: "time < 20" # string (required) - legal conditional statment, composed of only consts , relations and parameters of the output.
+            # to specify time condition, write 'time' and the condition.
+# ---- when specifying more than one movment per output reciver, movments will be sequencuall, not optional in 'continues' output type.
+
+
+# input_name is one of the defined inputs
+# output_name is one of the defined outputs
+# parameter type options {'greater_than', 'smaller_than', 'equal_to'}
+logic: 
+  - name: 'close_two_fingers_from_pressure_sensor' # action will occur only if both conditions are met.
+    input_name: 'pressure_leg' # string (required)
+    num_of_params: 2 # int (required)
+    parameter_1: 'pressure_leg_angle' #(required) matches a 'key' from the sensor 
+        type: 'greater_than' # string (required)
+        threshold_value: 512 # int (required)
+    parameter_2: 'pressure_leg_tap' #(required) matches a 'key' from the sensor 
+        type: 'greater_than' # string (required)
+        threshold_value: 300 # int (required)
+    output_name: 'close_two_fingers_with_speed' # string (required)
+    output_param_1: (parameter_1/3)*4
+# we assume pressure_leg transmitts all off it sensors data (if it got more than 1) together.
+
+  - name: 'close_and_open_finger_1_from_button'
+        input_name: 'button'
+        type: 'smaller_than'
+        parameter_1: 'button_state' #(required) matches a 'key' from the sensor 
+        type: 'equal_to' # string (required)
+        threshold_value: 1
+        output_name: 'close_and_open_finger_1'
+
+
+# what we are struggeling to understand for now , is for example if input_name is 'pressure_leg' , and it is a BLE_input
+# which holds more than one parameter, how can we deffer within both of them.
+
+
+
+
+
+
+
+
+
