@@ -6,28 +6,25 @@ file_type: config_system
 inputs:
   - name: 'leg_pressure_sensor' # string (required)
     type: 'BLE_input' # string (required)
-    transform: # optional (default -> linear (a=1 , b=0))
-      type: 'linear' # string (required)
-      # y = aX + b
-      a: 2 # int (required)
-      b: 10 # int (optional -> default = 0)
-
-  - name: 'finger_1_sense' # string (required)
-    type: 'analog_input' # string (required)
-    pin: 1 # int (required for analog/digital input only)
-    transform: # optional (default -> linear (a=1 , b=0))
-      type: 'linear'
-      # y = aX + b
-      a: 1 # int (required)
-      b: 14 # int (optional -> default = 0)
+    function:
+      name: "general_leg_pressure_func1" # string (required)
+      parameters: 
+        - 100 
+        - 500  
+        - 20
 
   - name: 'button' # string (required)
     type: 'digital_input' # string (required for analog/digital input only)
     pin: 2 # int (required for analog/digital input only)
+    function:
+      name: "general_button_func1" # string (required)
+      parameters: 
+        - 7 
+
 
 # --- do we want to let the admin define itself the "motors"(output receivers)? , in this way we support general system,
 # --- output receiver types: for example: {'DC_motor','servo_motor' ,'stepper_motor , 'led','RGB'} , but actually it can be anything, defined by the user's need
-output_recievers:
+outputs:
   - name: 'finger_1' # string (required)
     type: 'DC_motor' # string (required)
     pins:
@@ -35,6 +32,8 @@ output_recievers:
         pin_number: 4 # int (required)
       - type: 'direction' # string (required)
         pin_number: 5 # int (required)
+      - type: 'current' # string (required)
+        pin_number: 12 # int (required)
 
   - name: 'finger_2' # string (required)
     type: 'DC_motor' # string (required)
@@ -43,6 +42,8 @@ output_recievers:
         pin_number: 6 # int (required)
       - type: 'direction' # string (required)
         pin_number: 7 # int (required)
+      - type: 'current' # string (required)
+        pin_number: 13 # int (required)
 
   - name: 'wrist' # string (required)
     type: 'servo_motor' # string (required)
@@ -51,6 +52,8 @@ output_recievers:
         pin_number: 8 # int (required)
       - type: 'direction' # string (required)
         pin_number: 9 # int (required)
+      - type: 'current' # string (required)
+        pin_number: 14 # int (required)
 
   - name: 'led_1' # string (required)
     type: 'led'
@@ -59,57 +62,3 @@ output_recievers:
       - type: 'red_light' # string (required)
         pin_number: 2 # int (required)
 
-# output type options: {'continuous', 'predefined_sequence'}
-# output receiver options: {'finger_1', 'finger_2', 'finger_3', 'finger_4', 'wrist'} // depends on output_recievers that been defined
-# output direction options: {0, 1}
-commands:
-  - name: 'close_two_fingers_with_speed' # string (required)
-    type: 'continuous' # string (required)
-    parameter: 'close_speed'  # string (optional)
-    receivers:
-      - name: 'finger_1' # string (must be defined in the output_receivers section)
-        direction: 1 # int
-        speed: 'close_speed' # int
-      - name: 'finger_2' # string (must be defined in the output_receivers section)
-        direction: 1 # int
-        speed: 'close_speed' # int
-
-  - name: 'close_and_open_finger_1' # string (required)
-    type: 'predefined_sequence' # string (required)
-    parameter: 'finger_1_sense' # string (optional)
-    receivers:
-      - name: 'finger_1'  # string (required)
-        direction: 1 # int (required)
-        speed: 30 # int (required)
-        finish: "finger_1_sense > 100" # string (required) - legal conditional statement, composed of only constants, relations, and parameters of the output.
-      - name: 'finger_1'  # string (required)
-        direction: 0 # int (required)
-        speed: 30 # int (required)
-        finish: "time < 20" # string (required) - legal conditional statement, composed of only constants, relations, and parameters of the output.
-        # to specify time condition, write 'time' and the condition.
-        # ---- when specifying more than one movement per output receiver, movements will be sequential, not optional in 'continuous' output type.
-
-
-# input_name is one of the defined inputs
-# output_name is one of the defined outputs
-# parameter type options {'greater_than', 'smaller_than', 'equal_to'}
-logic:
-  - name: 'close_two_fingers_from_pressure_sensor' # action will occur only if both conditions are met.
-    input_name: 'leg_pressure_sensor' # string (required)
-    parameter: 'pressure_leg_angle' #(required) matches a 'key' from the sensor 
-    type: 'greater_than' # string (required)
-    threshold_value: 512 # int (required)
-    output_name: 'close_two_fingers_with_speed' # string (required)
-    output_param: '(close_speed/3)*4'
-    # we assume pressure_leg transmits all of its sensor data (if it has more than one) together.
-
-  - name: 'close_and_open_finger_1_from_button'
-    input_name: 'button'
-    parameter: 'button_state' #(required) matches a 'key' from the sensor 
-    type: 'equal_to' # string (required)
-    threshold_value: 1
-    output_name: 'close_and_open_finger_1'
-
-
-# what we are struggling to understand for now, is for example if input_name is 'leg_pressure_sensor' , and it is a BLE_input
-# which holds more than one parameter, how can we differentiate between both of them.
