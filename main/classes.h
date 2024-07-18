@@ -8,12 +8,16 @@
 #include <vector>
 #include <String>
 
+
+
+typedef void* (*FuncPtr)(void*);
+
 /**
  * @enum Direction
  * @brief Enumerates the possible directions for motor movement.
  */
 enum Direction{
-    LEFT,
+  LEFT,
   RIGHT
 };
 
@@ -23,7 +27,7 @@ enum Direction{
  * @brief Enumerates the possible relational operations for (*)end conditions. (* - will be explained later)
  */
 enum Relop{
-    GREATER_THAN,
+  GREATER_THAN,
   SMALLER_THAN
 };
 
@@ -32,9 +36,25 @@ enum Relop{
  * @brief Abstract base class for system elements that can serve as inputs. (motors / sensors)
  */
 class Input {
-  public:
-    virtual void set_calibration() = 0;
-    virtual ~Input() {}
+public:
+  int id;
+  String name;
+  Input(int id, String name): id(id), name(name){}
+  virtual void set_calibration() = 0
+  virtual ~Input() {}
+};
+
+
+class Func_of_input {
+  FuncPtr func_ptr;
+  std::vector<double> parameters
+  Func_of_input(FuncPtr func_ptr, std::vector<double> parameters) : func_ptr(func_ptr, parameters(parameters)){}
+
+  void* execute_func(uint8_t* sensor_read_value){
+    func_ptr(parameters, sensor_read_value)
+  }
+
+
 };
 
 /**
@@ -43,17 +63,17 @@ class Input {
  */
 class Sensor : Input{
   public:
-  String name;
   int in_port;
   int out_port;
   bool status;
-  Sensor(const String& name, int in_port, int out_port) : name(name), in_port(in_port), out_port(out_port), status(false){}
+  Func_of_input func_of_input_obj
+  Sensor(int id, const String& name, int in_port, int out_port, Func_of_input func_of_input) : Input(id, name), name(name), in_port(in_port), out_port(out_port), status(false), func_of_input_obj(func_of_input){}
   virtual void read_input() = 0;
 };
 
 class Distance_sensor : public Sensor {
   public:
-  Distance_sensor(const String& name, int in_port) : Sensor(name, in_port) {}
+  Distance_sensor(int id, const String& name, int in_port) : Sensor(id, name, in_port) {}
   void read_input() override {
       // Implementation for reading distance sensor
     }
@@ -61,7 +81,7 @@ class Distance_sensor : public Sensor {
 
 class Light_sensor : public Sensor {
   public:
-  Light_sensor(const String& name, int in_port) : Sensor(name, in_port) {}
+  Light_sensor(int id, const String& name, int in_port) : Sensor(id, name, in_port) {}
   void read_input() override {
       // Implementation for reading light sensor
     }
@@ -72,29 +92,30 @@ class Light_sensor : public Sensor {
  * @brief Abstract base class for motors.
  */
 class Motor : Input {
-  public:
-    String name;
-    int in_port;
-    int out_port_spped;
-    int out_port_direction;
-    int inputRange[2]; 
-    int outputRange[2];
-    int threshold;
-    Motor(const String& name, int in_port, int out_port_speed, int out_port_direction, int input_min_val, int input_max_val, int output_min_val, int output_max_val, int thres)
-           : name(name), in_port(in_port), out_port_speed(out_port_speed), out_port_direction(out_port_direction) {
-              inputRange[0] = input_min_val;
-            inputRange[1] = input_max_val;
-            outputRange[0] = output_min_val;
-            outputRange[1] = output_max_val;
-            threshold = thres;
-        }
-    /**
-     * @brief Pure virtual function to set calibration for the motor.
-     * (e.g. linear manipulation performed on the input before sent to the motor)
-     */
-    virtual void set_calibration() = 0;
-    virtual void execute_action(int direction, int speed) = 0;
-    virtual void read_input() = 0;
+public:
+  int id;
+  String name;
+  int in_port_current;
+  int out_port_spead;
+  int out_port_direction;
+  int inputRange[2]; 
+  int outputRange[2];
+  int threshold;
+  Motor(int id, const String& name, int in_port, int out_port_speed, int out_port_direction, int input_min_val, int input_max_val, int output_min_val, int output_max_val, int thres)
+          : Input(id, name), in_port(in_port), out_port_speed(out_port_speed), out_port_direction(out_port_direction) {
+          inputRange[0] = input_min_val;
+          inputRange[1] = input_max_val;
+          outputRange[0] = output_min_val;
+          outputRange[1] = output_max_val;
+          threshold = thres;
+      }
+  /**
+    * @brief Pure virtual function to set calibration for the motor.
+    * (e.g. linear manipulation performed on the input before sent to the motor)
+    */
+  virtual void set_calibration() = 0;
+  virtual void execute_action(int direction, int speed) = 0;
+  virtual void read_input() = 0;
 };
 
 class motor_type_A : public Motor {
@@ -132,7 +153,7 @@ class End_condition{
  * @class Action
  * @brief Class for defining actions involving motors and end conditions. 
  * e.g. Action X includes a motor and relevant parameters to the motor, and an End_condition object 
- *      defines when to stop the action once it was triggered.
+ *      defines when to stop the action after it was triggered.
  * @note An action can be stopped also due to motor's threshold, even before action's enc_condition is met. 
  */
 class Action{
