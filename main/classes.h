@@ -8,9 +8,7 @@
 #include <vector>
 #include <String>
 
-
-
-typedef void* (*FuncPtr)(void*);
+typedef void (*FuncPtr)(std::vector<double>, const uint8_t*);
 
 /**
  * @enum Direction
@@ -40,18 +38,18 @@ public:
   int id;
   String name;
   Input(int id, String name): id(id), name(name){}
-  virtual void set_calibration() = 0
   virtual ~Input() {}
 };
 
 
 class Func_of_input {
+public:
   FuncPtr func_ptr;
-  std::vector<double> parameters
-  Func_of_input(FuncPtr func_ptr, std::vector<double> parameters) : func_ptr(func_ptr, parameters(parameters)){}
+  std::vector<double> parameters;
+  Func_of_input(FuncPtr func_ptr, std::vector<double> parameters) : func_ptr(func_ptr), parameters(parameters){}
 
-  void* execute_func(uint8_t* sensor_read_value){
-    func_ptr(parameters, sensor_read_value)
+  void execute_func(const uint8_t* sensor_read_value){
+    func_ptr(parameters, sensor_read_value);
   }
 
 
@@ -62,18 +60,19 @@ class Func_of_input {
  * @brief Abstract base class for sensors.
  */
 class Sensor : Input{
-  public:
+public:
+  Func_of_input func_of_input_obj;
   int in_port;
   int out_port;
   bool status;
-  Func_of_input func_of_input_obj
-  Sensor(int id, const String& name, int in_port, int out_port, Func_of_input func_of_input) : Input(id, name), name(name), in_port(in_port), out_port(out_port), status(false), func_of_input_obj(func_of_input){}
-  virtual void read_input() = 0;
+  friend class Hand;
+  Sensor(int id, const String& name, Func_of_input func_of_input, int in_port=-1, int out_port=-1) : Input(id, name), func_of_input_obj(func_of_input), in_port(in_port), out_port(out_port), status(false){}
+  virtual void read_input(){}
 };
 
 class Distance_sensor : public Sensor {
   public:
-  Distance_sensor(int id, const String& name, int in_port) : Sensor(id, name, in_port) {}
+  Distance_sensor(int id, const String& name, int in_port, int out_port, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_port, out_port) {}
   void read_input() override {
       // Implementation for reading distance sensor
     }
@@ -81,7 +80,7 @@ class Distance_sensor : public Sensor {
 
 class Light_sensor : public Sensor {
   public:
-  Light_sensor(int id, const String& name, int in_port) : Sensor(id, name, in_port) {}
+  Light_sensor(int id, const String& name, int in_port, int out_port, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_port, out_port) {}
   void read_input() override {
       // Implementation for reading light sensor
     }
@@ -93,10 +92,8 @@ class Light_sensor : public Sensor {
  */
 class Motor : Input {
 public:
-  int id;
-  String name;
-  int in_port_current;
-  int out_port_spead;
+  int in_port;
+  int out_port_speed;
   int out_port_direction;
   int inputRange[2]; 
   int outputRange[2];
@@ -113,15 +110,15 @@ public:
     * @brief Pure virtual function to set calibration for the motor.
     * (e.g. linear manipulation performed on the input before sent to the motor)
     */
-  virtual void set_calibration() = 0;
-  virtual void execute_action(int direction, int speed) = 0;
-  virtual void read_input() = 0;
+  virtual void set_calibration();
+  virtual void execute_action(int direction, int speed);
+  virtual int read_input();
 };
 
 class motor_type_A : public Motor {
   public:
-    motor_type_A(const String& name, int in_port, int out_port_speed, int out_port_direction, int input_min_val, int input_max_val, int output_min_val, int output_max_val, int threshold)
-        : Motor(name, in_port, out_port_speed, out_port_direction, input_min_val, input_max_val, output_min_val, output_max_val, threshold) {}
+    motor_type_A(int id, const String& name, int in_port, int out_port_speed, int out_port_direction, int input_min_val, int input_max_val, int output_min_val, int output_max_val, int threshold)
+        : Motor(id, name, in_port, out_port_speed, out_port_direction, input_min_val, input_max_val, output_min_val, output_max_val, threshold) {}
     void set_calibration() override {
           // Implementation for motor type A calibration
     }
@@ -136,10 +133,11 @@ class motor_type_A : public Motor {
  * e.g. stop the action X(type Action) when the input from sensor Y(type Input) is higher than Z(type int)
  */
 class End_condition{
-    Input* sensor;
+public:
+  Input* sensor;
   int threshold;
   Relop relop;
-  End_condition(Sensor* sensor, int threshold, Relop relop): sensor(sensor), threshold(threshold), relop(relop){}
+  End_condition(Input* sensor, int threshold, Relop relop): sensor(sensor), threshold(threshold), relop(relop){}
   /**
      * @brief Checks if the end condition is met.
      * @return True if the end condition is met, false otherwise.
@@ -157,16 +155,16 @@ class End_condition{
  * @note An action can be stopped also due to motor's threshold, even before action's enc_condition is met. 
  */
 class Action{
-  public:
+public:
   Motor* motor;
   int speed;
   Direction direction;
-  End_condition motor_end_condition; 
+  End_condition end_condition; 
   Action(Motor* motor, Direction direction, End_condition end_condition): motor(motor), direction(direction), end_condition(end_condition){}
   /**
   * @brief Initiates the motor operation.
   */
-  void execute(){
+  void execute(int speed){
       // TO-DO
   }
   /**
@@ -179,7 +177,7 @@ class Action{
   * @brief check if the action's end condiiton is met or motor reached its threshold.
   */
   bool check_end_conditions(){
-      return (end_condition.condition_is_met() || motor->threshold > motor.get_input())
+      return (end_condition.condition_is_met() || motor->threshold > motor->read_input());
   }
 };
 
@@ -196,15 +194,15 @@ class Command{
   void push_action(Action* action){
       actions.push_back(action);
   }
-  void execute(){
-      for(Action action_ptr : actions){
-        action->execute(speed)
+  void execute(int speed){
+      for(Action* action_ptr : actions){
+        action_ptr->execute(speed);
     }
     bool flag = false;
     while(flag){
         flag = false;
-      for(Action action_ptr : actions){
-          if(action_ptr->check_end_conditions)
+      for(Action* action_ptr : actions){
+        if(action_ptr->check_end_conditions())
           action_ptr->halt();
         else flag = true;
       }
@@ -228,9 +226,10 @@ class Sequential_command : Command{
   * @brief execute all sub_commands synchronously.
   */
   void execute(int speed = -1){
-      for(Command* command_ptr : commands){
-        command.execute();
+      for(Command* command_ptr : sub_commands){
+        command_ptr->execute(speed);
     }
+  }
 };
 
 /**
@@ -238,7 +237,7 @@ class Sequential_command : Command{
  * @brief Represents a hand with multiple motors, sensors, and commands.
  */
 class Hand{
-  public:
+public:
   std::vector<Motor*> motors;
   std::vector<Sensor*> sensors;
   std::vector<Command*> commands;
@@ -252,52 +251,58 @@ class Hand{
   void add_command(Command* command){
       commands.push_back(command);
   }
+  Sensor* get_sensor_by_id(int id) {
+    for (Sensor* sensor : sensors) {
+      if (sensor->id == id)
+        return sensor;
+    }
+    return NULL;
+  }
   //getters + setters? to every component by its name.
 };
 
-/**
- * @class Connection
- * @brief Represents a connection for a sensory system.
- */
-class Connection{
-  public:
-  String sensory_system_id;
-  bool status;
+// /**
+//  * @class Connection
+//  * @brief Represents a connection for a sensory system.
+//  */
+// class Connection{
+// public:
+//   String sensory_system_id;
+//   bool status;
 
-  Connection(String sensory_system_id): sensory_system_id(sensory_system_id), status(false){}
-  virtual void configure_connection();
-};
+//   Connection(String sensory_system_id): sensory_system_id(sensory_system_id), status(false){}
+//   virtual void configure_connection();
+// };
 
-/**
- * @class Wifi
- * @brief Represents a Wifi connection for a sensory system.
- */
-class Wifi : Connection{
-  public:
-  Wifi(String protocol_type, String sensory_system_id): Connection(protocol_type, sensory_system_id){}
-  void configure_connection();
-};
+// /**
+//  * @class Wifi
+//  * @brief Represents a Wifi connection for a sensory system.
+//  */
+// class Wifi : Connection{
+// public:
+//   Wifi(String protocol_type, String sensory_system_id): Connection(protocol_type, sensory_system_id){}
+//   void configure_connection();
+// };
 
-/**
- * @class Bluetooth
- * @brief Represents a Bluetooth connection for a sensory system.
- */
-class Bluetooth : Connection{
-  public:
-  Bluetooth(String protocol_type, String sensory_system_id): Connection(protocol_type, sensory_system_id){}
-    void configure_connection();
-};
+// /**
+//  * @class Bluetooth
+//  * @brief Represents a Bluetooth connection for a sensory system.
+//  */
+// class Bluetooth : Connection{
+//   public:
+//   Bluetooth(String protocol_type, String sensory_system_id): Connection(protocol_type, sensory_system_id){}
+//     void configure_connection();
+// };
 
 /**
  * @class System
- * @brief Represents the overall system with a hand and a connection.
+ * @brief Represents the overall system with a hand.
  */
 class System{
   public:
   Hand* hand;
-  Connection* connection;
-  System(Hand* hand, Connection* connection)
-    : hand(hand), connection(connection) {}
+  System(Hand* hand)
+    : hand(hand){}
 };
 
 #endif

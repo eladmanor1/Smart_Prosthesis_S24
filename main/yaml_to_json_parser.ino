@@ -1,15 +1,41 @@
+#ifndef YAML_TO_JSON_PARSER
+#define YAML_TO_JSON_PARSER
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <YAMLDuino.h>
 #include <string>
+#include <vector>
+#include "hand_functions.ino"
+extern Hand* hand;
 
 void config_system(JsonDocument doc) {
-  JsonArray input_arr = doc["inputs"].as<JsonArray>();
+  JsonArray input_list = doc["inputs"].as<JsonArray>();
 
-  for (JsonVariant value : input_arr) {
-    const char *name = value["name"];
-    Serial.print("name: ");
-    Serial.println(name);
+  for (JsonVariant value : input_list) {
+    const char *input_name = value["name"];
+    Serial.print("input_name: ");
+    Serial.println(input_name);
+    int id = value["id"];
+    Serial.print("id: ");
+    Serial.println(id);
+    const char *sensor_type = value["type"];
+    Serial.print("sensor_type: ");
+    Serial.println(sensor_type);
+    const char *func_name = value["function"]["name"];
+    Serial.print("func_name: ");
+    Serial.println(func_name);
+    JsonArray func_params_list = value["function"]["parameters"].as<JsonArray>();
+    int func_params_list_size = func_params_list.size();
+    std::vector<double> func_params;
+    for (JsonVariant param : func_params_list) {
+      func_params.push_back((double)param);
+      Serial.print("prarm: ");
+      Serial.println((int)param);
+    }
+    FuncPtr sensor_func = func_map["motor_func"];
+    Func_of_input func_of_input(sensor_func, func_params);
+    Sensor *sensor = new Sensor(id, input_name, func_of_input);
+    hand->add_sensor(sensor);
   }
 }
 
@@ -33,3 +59,5 @@ void yaml_to_json(const char *yaml_str) {
     Serial.println(file_type);
   }
 }
+
+#endif /* YAML_TO_JSON_PARSER */

@@ -5,21 +5,23 @@ file_type: config_system
 # transform type options: {'linear'}
 inputs:
   - name: 'leg_pressure_sensor' # string (required)
+    id: 1 # int (between 0 to 255)
     type: 'BLE_input' # string (required)
     function:
       name: "general_leg_pressure_func1" # string (required)
-      parameters: 
-        - 100 
-        - 500  
-        - 20
+      parameters:
+        - 100 # (double)
+        - 500 # (double)
+        - 20 # (double)
 
   - name: 'button' # string (required)
+    id: 2 # int (between 0 to 255)
     type: 'digital_input' # string (required for analog/digital input only)
     pin: 2 # int (required for analog/digital input only)
     function:
       name: "general_button_func1" # string (required)
-      parameters: 
-        - 7 
+      parameters:
+        - 7 # (double)
 
 
 # --- do we want to let the admin define itself the "motors"(output receivers)? , in this way we support general system,
@@ -61,4 +63,3 @@ outputs:
     pins:
       - type: 'red_light' # string (required)
         pin_number: 2 # int (required)
-
