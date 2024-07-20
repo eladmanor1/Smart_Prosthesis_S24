@@ -24,7 +24,7 @@ void loop() {
   }
   if (command_received) {
     int id = commandPayload[0];
-    Sensor* sensor = hand->get_sensor_by_id(id);
+    Sensor* sensor = dynamic_cast<Sensor*>(hand->get_input_by_id(id));
     if (sensor) {
       sensor->func_of_input_obj.execute_func(commandPayload);
     } else {

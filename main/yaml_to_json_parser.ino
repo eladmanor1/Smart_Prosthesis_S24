@@ -25,7 +25,6 @@ void config_system(JsonDocument doc) {
     Serial.print("func_name: ");
     Serial.println(func_name);
     JsonArray func_params_list = value["function"]["parameters"].as<JsonArray>();
-    int func_params_list_size = func_params_list.size();
     std::vector<double> func_params;
     for (JsonVariant param : func_params_list) {
       func_params.push_back((double)param);
@@ -35,7 +34,27 @@ void config_system(JsonDocument doc) {
     FuncPtr sensor_func = func_map["motor_func"];
     Func_of_input func_of_input(sensor_func, func_params);
     Sensor *sensor = new Sensor(id, input_name, func_of_input);
-    hand->add_sensor(sensor);
+    hand->add_input(sensor);
+  }
+
+  JsonArray output_list = doc["outputs"].as<JsonArray>();
+  for (JsonVariant value : output_list) {
+    const char *output_name = value["name"];
+    const char *output_type = value["type"];
+    if (strcmp(output_type, "servo_motor") == 0) {
+      JsonArray pins_list = value["pins"].as<JsonArray>();
+      int control_pin;
+      for (JsonVariant pin : pins_list) {
+        const char *pin_type = pin["type"];
+        if (strcmp(pin_type, "control") == 0) {
+          control_pin = pin["pin_number"];
+        }
+      }
+      Servo_motor *servo_motor = new Servo_motor(name, output_type, control_pin);
+      hand->add_output(servo_motor);
+    } else if (strcmp(output_type, "DC_motor") == 0) {
+        // add logic
+    }
   }
 }
 
