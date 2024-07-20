@@ -9,6 +9,8 @@
 #include <String>
 
 typedef void (*FuncPtr)(std::vector<double>, const uint8_t*);
+#define OUTPUT_MIN_VAL 10
+#define OUTPUT_MAX_VAL 100
 
 /**
  * @enum Direction
@@ -41,6 +43,14 @@ public:
   virtual ~Input() {}
 };
 
+class Output {
+public:
+  String name;
+  String type;
+  Output(String name, String type): name(name), type(type){}
+  virtual ~Output() {}
+};
+
 
 class Func_of_input {
 public:
@@ -62,17 +72,17 @@ public:
 class Sensor : Input{
 public:
   Func_of_input func_of_input_obj;
-  int in_port;
-  int out_port;
+  int in_pin;
+  int out_pin;
   bool status;
   friend class Hand;
-  Sensor(int id, const String& name, Func_of_input func_of_input, int in_port=-1, int out_port=-1) : Input(id, name), func_of_input_obj(func_of_input), in_port(in_port), out_port(out_port), status(false){}
+  Sensor(int id, const String& name, Func_of_input func_of_input, int in_pin=-1, int out_pin=-1) : Input(id, name), func_of_input_obj(func_of_input), in_pin(in_pin), out_pin(out_pin), status(false){}
   virtual void read_input(){}
 };
 
 class Distance_sensor : public Sensor {
   public:
-  Distance_sensor(int id, const String& name, int in_port, int out_port, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_port, out_port) {}
+  Distance_sensor(int id, const String& name, int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
   void read_input() override {
       // Implementation for reading distance sensor
     }
@@ -80,7 +90,7 @@ class Distance_sensor : public Sensor {
 
 class Light_sensor : public Sensor {
   public:
-  Light_sensor(int id, const String& name, int in_port, int out_port, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_port, out_port) {}
+  Light_sensor(int id, const String& name, int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
   void read_input() override {
       // Implementation for reading light sensor
     }
@@ -90,21 +100,13 @@ class Light_sensor : public Sensor {
  * @class Motor
  * @brief Abstract base class for motors.
  */
-class Motor : Input {
+class Motor : Output {
 public:
-  int in_port;
-  int out_port_speed;
-  int out_port_direction;
-  int inputRange[2]; 
-  int outputRange[2];
-  int threshold;
-  Motor(int id, const String& name, int in_port, int out_port_speed, int out_port_direction, int input_min_val, int input_max_val, int output_min_val, int output_max_val, int thres)
-          : Input(id, name), in_port(in_port), out_port_speed(out_port_speed), out_port_direction(out_port_direction) {
-          inputRange[0] = input_min_val;
-          inputRange[1] = input_max_val;
+  int outputRange[2]; 
+  Motor(String name, String type, int output_min_val, int output_max_val)
+          : Output(name, type){
           outputRange[0] = output_min_val;
           outputRange[1] = output_max_val;
-          threshold = thres;
       }
   /**
     * @brief Pure virtual function to set calibration for the motor.
@@ -115,16 +117,17 @@ public:
   virtual int read_input();
 };
 
-class motor_type_A : public Motor {
-  public:
-    motor_type_A(int id, const String& name, int in_port, int out_port_speed, int out_port_direction, int input_min_val, int input_max_val, int output_min_val, int output_max_val, int threshold)
-        : Motor(id, name, in_port, out_port_speed, out_port_direction, input_min_val, input_max_val, output_min_val, output_max_val, threshold) {}
-    void set_calibration() override {
-          // Implementation for motor type A calibration
-    }
-    void execute_action(int direction, int speed) override {
-          // Implementation for motor type A command execution
-    }
+class Servo_motor : public Motor {
+public:
+  int control_pin;
+  Servo_motor(String name, String type, int control_pin)
+      : Motor(name, type, OUTPUT_MIN_VAL, OUTPUT_MAX_VAL), control_pin(control_pin){}
+  void set_calibration() override {
+        // Implementation for motor type A calibration
+  }
+  void execute_action(int direction, int speed) override {
+        // Implementation for motor type A command execution
+  }
 };
 
 /**
@@ -174,10 +177,10 @@ public:
       // TO-DO: stop motor operation
   }
   /**
-  * @brief check if the action's end condiiton is met or motor reached its threshold.
+  * @brief check if the action's end condiiton is met *****what about threshold.
   */
   bool check_end_conditions(){
-      return (end_condition.condition_is_met() || motor->threshold > motor->read_input());
+      return (end_condition.condition_is_met());
   }
 };
 
@@ -238,27 +241,36 @@ class Sequential_command : Command{
  */
 class Hand{
 public:
-  std::vector<Motor*> motors;
-  std::vector<Sensor*> sensors;
+  std::vector<Output*> outputs;
+  std::vector<Input*> inputs;
   std::vector<Command*> commands;
   Hand(){}
-  void add_motor(Motor* motor){
-      motors.push_back(motor);
+  void add_output(Output* output){
+      outputs.push_back(output);
   }
-  void add_sensor(Sensor* sensor){
-      sensors.push_back(sensor);
+  void add_input(Input* input){
+      inputs.push_back(input);
   }
   void add_command(Command* command){
       commands.push_back(command);
   }
-  Sensor* get_sensor_by_id(int id) {
-    for (Sensor* sensor : sensors) {
-      if (sensor->id == id)
-        return sensor;
+
+  Input* get_input_by_id(int id) {
+    for (Input* input_ptr : inputs) {
+      if (input_ptr->id == id)
+        return input_ptr;
     }
     return NULL;
   }
-  //getters + setters? to every component by its name.
+
+  Output* get_output_by_name(String name) {
+    for (Output* output_ptr : outputs) {
+      if (output_ptr->name == name)
+        return output_ptr;
+    }
+    return NULL;
+  }
+
 };
 
 // /**
