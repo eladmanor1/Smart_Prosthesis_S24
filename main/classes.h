@@ -69,7 +69,7 @@ public:
  * @class Sensor
  * @brief Abstract base class for sensors.
  */
-class Sensor : Input{
+class Sensor : public Input{
 public:
   Func_of_input func_of_input_obj;
   int in_pin;
@@ -100,7 +100,7 @@ class Light_sensor : public Sensor {
  * @class Motor
  * @brief Abstract base class for motors.
  */
-class Motor : Output {
+class Motor : public Output {
 public:
   int outputRange[2]; 
   Motor(String name, String type, int output_min_val, int output_max_val)
@@ -112,9 +112,9 @@ public:
     * @brief Pure virtual function to set calibration for the motor.
     * (e.g. linear manipulation performed on the input before sent to the motor)
     */
-  virtual void set_calibration();
-  virtual void execute_action(int direction, int speed);
-  virtual int read_input();
+  virtual void set_calibration(){}
+  virtual void execute_action(int direction, int speed){}
+  virtual int read_input(){}
 };
 
 class Servo_motor : public Motor {
@@ -126,6 +126,9 @@ public:
         // Implementation for motor type A calibration
   }
   void execute_action(int direction, int speed) override {
+        // Implementation for motor type A command execution
+  }
+  int read_input() override {
         // Implementation for motor type A command execution
   }
 };
@@ -217,7 +220,7 @@ class Command{
  * @class Sequential_command
  * @brief Class for defining sequential commands composed of multiple sub-commands that occurs synchronously.
  */
-class Sequential_command : Command{
+class Sequential_command : public Command{
   public:
   std::vector<Command*> sub_commands;
   Sequential_command(const String& name): Command(name) {};

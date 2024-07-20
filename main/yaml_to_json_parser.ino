@@ -50,7 +50,7 @@ void config_system(JsonDocument doc) {
           control_pin = pin["pin_number"];
         }
       }
-      Servo_motor *servo_motor = new Servo_motor(name, output_type, control_pin);
+      Servo_motor *servo_motor = new Servo_motor(output_name, output_type, control_pin);
       hand->add_output(servo_motor);
     } else if (strcmp(output_type, "DC_motor") == 0) {
         // add logic

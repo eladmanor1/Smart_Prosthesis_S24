@@ -1,14 +1,14 @@
 #ifndef MAIN
 #define MAIN
 #include "wifi_communication.ino"
-#include "BLE_communication.ino"
+//#include "BLE_communication.ino"
 #include "yaml_to_json_parser.ino"
 
 Hand* hand;
 
 void setup() {
   Serial.begin(115200);
-  delay(5000);
+  delay(10000);
   bring_up_wifi_server();
   //init_BLE();
   hand = new Hand();
@@ -24,7 +24,7 @@ void loop() {
   }
   if (command_received) {
     int id = commandPayload[0];
-    Sensor* sensor = dynamic_cast<Sensor*>(hand->get_input_by_id(id));
+    Sensor* sensor = (Sensor*)(hand->get_input_by_id(id));
     if (sensor) {
       sensor->func_of_input_obj.execute_func(commandPayload);
     } else {
