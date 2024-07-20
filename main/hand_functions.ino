@@ -10,17 +10,22 @@ extern Hand* hand;
 /* --------- func: sensor_1_func sub functions --------------- */
 
 void finger_1_up_to_90_fast(Servo* my_servo , const uint8_t angle){
-  my_servo->write(0);  // Move the servo to 0 degrees
-  delay(500);    
-  my_servo->write(angle); // Move the servo to 90 degrees
-  delay(500);     
+      for (int i = 0; i < 8; i++) {
+        my_servo->write(angle);  // Set the servo to the specified angle
+        delay(500);            // Wait for 0.5 seconds to allow the servo to reach the position
+        my_servo->write(0);              // Set the servo to the specified angle
+        delay(500); 
+    }
 }
 
 void finger_1_more_than_90_slow(Servo* my_servo , const uint8_t angle){
-  my_servo->write(0);  // Move the servo to 0 degrees
-  delay(1500);    
-  my_servo->write(angle); // Move the servo to 90 degrees
-  delay(1500);      
+      for (int i = 0; i < 2; i++) {
+        my_servo->write(angle);  // Set the servo to the specified angle
+        delay(1500);
+        my_servo->write(0);              // Set the servo to the specified angle
+        delay(1500);          // Wait for 0.5 seconds to allow the servo to reach the position
+    }  
+ 
 }
 
 /* --------- func: sensor_1_func main function --------------- */

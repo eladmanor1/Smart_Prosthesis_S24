@@ -31,7 +31,12 @@ void config_system(JsonDocument doc) {
       Serial.print("prarm: ");
       Serial.println((int)param);
     }
-    FuncPtr sensor_func = func_map["motor_func"];
+    String str_func_name(func_name);
+    FuncPtr sensor_func = func_map[str_func_name];
+    if(sensor_func == NULL){
+      Serial.print("error! coulndt find the pointer to function:");
+      Serial.println(str_func_name);
+    }
     Func_of_input func_of_input(sensor_func, func_params);
     Sensor *sensor = new Sensor(id, input_name, func_of_input);
     hand->add_input(sensor);

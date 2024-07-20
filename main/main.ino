@@ -25,6 +25,8 @@ void loop() {
   if (command_received) {
     int id = commandPayload[0];
     Sensor* sensor = (Sensor*)(hand->get_input_by_id(id));
+    Serial.print("got sensor:");
+    Serial.print(sensor->name);
     if (sensor) {
       sensor->func_of_input_obj.execute_func(commandPayload);
     } else {
