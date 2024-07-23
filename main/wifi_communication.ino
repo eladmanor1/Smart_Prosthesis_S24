@@ -4,16 +4,19 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "Smart_Prosthesis";          // Name of the Wi-Fi network
+void process_payload_and_execute_command(const uint8_t* command_payload);
+void yaml_to_json(const char *yaml_str);
+
+#define num_of_args 2
+
+const char* ssid = "Smart_Prosthesis_c";          // Name of the Wi-Fi network
 const char* password = "your_PASSWORD";      // Password for the Wi-Fi network
 
 WebServer server(80);
 String yaml_configs;  // Global variable to store the configs
 const char* command;       // Global variable to store the command
-bool configs_waiting = false;
-bool command_received = false;
 
-void handleRoot() {
+void send_configs_page() {
   // Serve the HTML page with a multi-line text box, a send button, and some styling
   server.send(200, "text/html",
     "<html>"
@@ -100,11 +103,11 @@ void handleRoot() {
   );
 }
 
-void handleFormSubmit() {
+void get_configs() {
   if (server.method() == HTTP_POST) {
     // Get the multi-line text box content
     yaml_configs = server.arg("textbox");
-    configs_waiting = true;
+    yaml_to_json(yaml_configs.c_str());
     // Send response back to the client
     server.send(200, "text/html", "<html><body><h1>Text received</h1></body></html>");
 
@@ -113,7 +116,7 @@ void handleFormSubmit() {
   }
 }
 
-void handleSendCommandPage() {
+void send_command_page() {
   // Serve the HTML page with input boxes for id and sensor_value
   server.send(200, "text/html",
     "<html>"
@@ -138,20 +141,14 @@ void handleSendCommandPage() {
     "</html>"
   );
 }
-uint8_t commandPayload[2];
-void handleSendCommand() {
+
+void get_command() {
   if (server.method() == HTTP_POST) {
     // Get the command text box content
-    uint8_t id = (uint8_t)server.arg("id").toInt();
-    uint8_t sensor_value = (uint8_t)server.arg("sensor_value").toInt();
-    commandPayload[0] = id;
-    commandPayload[1] = sensor_value;
-  
-    Serial.print("Command received: ID=");
-    Serial.print(commandPayload[0]);
-    Serial.print(" Sensor Value=");
-    Serial.println(commandPayload[1]);
-    command_received = true;
+    uint8_t command_payload[2];
+    command_payload[0] = (uint8_t)server.arg("id").toInt();
+    command_payload[1] = (uint8_t)server.arg("sensor_value").toInt();
+    process_payload_and_execute_command(command_payload);
     // Send response back to the client
     server.send(200, "text/html", "<html><body><h1>Command received</h1></body></html>");
   } else {
@@ -167,10 +164,10 @@ void bring_up_wifi_server() {
   Serial.println(WiFi.softAPIP());
 
   // Set up the server to handle requests
-  server.on("/", HTTP_GET, handleRoot);
-  server.on("/submit", HTTP_POST, handleFormSubmit);
-  server.on("/send_command", HTTP_GET, handleSendCommandPage);
-  server.on("/send_command", HTTP_POST, handleSendCommand);
+  server.on("/", HTTP_GET, send_configs_page);
+  server.on("/submit", HTTP_POST, get_configs);
+  server.on("/send_command", HTTP_GET, send_command_page);
+  server.on("/send_command", HTTP_POST, get_command);
   server.begin();
   Serial.println("HTTP server started");
 }

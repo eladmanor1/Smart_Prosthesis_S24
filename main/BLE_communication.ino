@@ -6,7 +6,7 @@
 #include <BLE2902.h>
 #include <classes.h>
 
-extern Hand* hand;
+void process_payload_and_execute_command(const uint8_t* command_payload);
 
 // -------------------------------------------------------------------------------------------------- //
 // ------------------------------------------ SYSTEM CONSTS  ---------------------------------------- //
@@ -43,61 +43,57 @@ bool deviceConnected = false;
 // ---------------------------------------------------------------------------------------------------------- //
 // Server Callbacks
 class MyServerCallbacks : public BLEServerCallbacks {
-  void onConnect(BLEServer *pServer) {
-    deviceConnected = true;
-    Serial.println("Client Connected");
+    void onConnect(BLEServer *pServer) {
+      deviceConnected = true;
+    Serial.println("BLE client Connected");
   };
 
   void onDisconnect(BLEServer *pServer) {
-    deviceConnected = false;
-    Serial.println("Client Disconnected");
-    pServer->startAdvertising();  // Restart advertising
-  }
-};
-/*
-class ConfigCallbacks : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
-    // Check the payload size
-    const uint8_t *dataPtr = pCharacteristic->getData();
-    size_t dataSize = pCharacteristic->getLength();
-    Serial.print("Payload size: ");
-    Serial.println(dataSize);
-
-    // Optionally print the payload data
-    //Serial.print("Payload data: ");
-    //for (size_t i = 0; i < dataSize; ++i) {
-    //  Serial.print(dataPtr[i], HEX);
-    //  Serial.print(" ");
-    //}
-    Serial.println();
-  };
-};
-*/
-class SensorCallbacks : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
-    // Check the payload size
-    const uint8_t *dataPtr = pCharacteristic->getData();
-    size_t dataSize = pCharacteristic->getLength();
-    Serial.print("Payload size: ");
-    Serial.println(dataSize);
-
-    // Optionally print the payload data
-    Serial.print("Payload data: ");
-    for (size_t i = 0; i < dataSize; ++i) {
-      Serial.print(dataPtr[i], HEX);
-      Serial.print(" ");
+        deviceConnected = false;
+      Serial.println("BLE client Disconnected");
+      pServer->startAdvertising();  // Restart advertising
     }
-    Serial.println();
-    int id = dataPtr[0];
-    Sensor* sensor = (Sensor*)(hand->get_input_by_id(id));
-    sensor->func_of_input_obj.execute_func(dataPtr);
   };
-};
-// ---------------------------------------------------------------------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------- //
+  /*
+  class ConfigCallbacks : public BLECharacteristicCallbacks {
+      void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
+      // Check the payload size
+      const uint8_t *dataPtr = pCharacteristic->getData();
+      size_t dataSize = pCharacteristic->getLength();
+      Serial.print("Payload size: ");
+      Serial.println(dataSize);
 
+    // Optionally print the payload data
+        //Serial.print("Payload data: ");
+        //for (size_t i = 0; i < dataSize; ++i) {
+          //  Serial.print(dataPtr[i], HEX);
+        //  Serial.print(" ");
+        //}
+        Serial.println();
+      };
+    };
+    */
+    class SensorCallbacks : public BLECharacteristicCallbacks {
+        void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
+        // Check the payload size
+        const uint8_t *command_payload = pCharacteristic->getData();
+        size_t data_size = pCharacteristic->getLength();
+        Serial.print("Payload size: ");
+        Serial.println(data_size);
 
+    // Optionally print the payload data
+        Serial.print("Payload data: ");
+        for (size_t i = 0; i < data_size; ++i) {
+            Serial.print(command_payload[i], HEX);
+          Serial.print(" ");
+        }
+        Serial.println();
+        process_payload_and_execute_command(command_payload);
+      };
+    };
+    // ---------------------------------------------------------------------------------------------------------- //
+    // ---------------------------------------------------------------------------------------------------------- //
+    // ---------------------------------------------------------------------------------------------------------- //
 
 // ------------------------------------------------------------------------------------- //
 // ---------------------------  Services Setup Functions ------------------------------- //
@@ -182,7 +178,7 @@ void setAdvertizing(BLEServer *pServer) {
   pAdvertising->addServiceUUID(SENSOR_SERVICE_UUID);
   pAdvertising->start();
   pAdvertising->setScanResponse(true);
-  Serial.println("advertising started!");
+  Serial.println("BLE advertising started!");
 }
 
 void init_BLE() {
