@@ -77,6 +77,7 @@ void yaml_to_json(const char *yaml_str) {
   Serial.println(file_type);
   if (strcmp(file_type, "config_system") == 0) {
     config_system(doc);
+    store_configs();
   } else if (file_type == "debug_mode") {
     // add debug function
   } else {
