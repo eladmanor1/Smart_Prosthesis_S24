@@ -1,25 +1,32 @@
 #ifndef MAIN
 #define MAIN
 #include "wifi_communication.ino"
-//#include "BLE_communication.ino"
+#include "BLE_communication.ino"
 #include "yaml_to_json_parser.ino"
+#include "esp_memory_management.ino"
 
+
+
+Preferences preference;
 Hand* hand;
 
 void setup() {
   Serial.begin(115200);
   delay(10000);
   bring_up_wifi_server();
-  //init_BLE();
+  init_BLE();
   hand = new Hand();
+  load_configs();
 }
+
 
 void loop() {
   digitalWrite(2, millis() / 1000 % 2 == 0 ? HIGH : LOW);
   server.handleClient();
   if (configs_waiting)
   {
-    yaml_to_json(yaml_configs.c_str());
+    yaml_to_json(yaml_configs.c_str());// this func sets the hand objecta ( sensors, motors, etc)
+    store_configs();
     configs_waiting = false;
   }
   if (command_received) {
