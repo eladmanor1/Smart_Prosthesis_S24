@@ -1,7 +1,7 @@
 #ifndef MAIN
 #define MAIN
 #include "wifi_communication.ino"
-//#include "BLE_communication.ino"
+#include "BLE_communication.ino"
 #include "yaml_to_json_parser.ino"
 
 Hand* hand;
@@ -10,7 +10,7 @@ void setup() {
   Serial.begin(115200);
   delay(10000);
   bring_up_wifi_server();
-  //init_BLE();
+  init_BLE();
   hand = new Hand();
 }
 

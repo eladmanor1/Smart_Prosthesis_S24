@@ -61,6 +61,7 @@ void config_system(JsonDocument doc) {
         // add logic
     }
   }
+  hand->debug_print();
 }
 
 void yaml_to_json(const char *yaml_str) {

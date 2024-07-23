@@ -40,6 +40,13 @@ public:
   int id;
   String name;
   Input(int id, String name): id(id), name(name){}
+  virtual void debug_print(){
+    Serial.println("--INPUT--");
+    Serial.print("id : ");
+    Serial.println(id);
+    Serial.print("name : ");
+    Serial.println(name);
+    }
   virtual ~Input() {}
 };
 
@@ -48,6 +55,13 @@ public:
   String name;
   String type;
   Output(String name, String type): name(name), type(type){}
+  virtual void debug_print(){
+    Serial.println("--Output--");
+    Serial.print("name : ");
+    Serial.println(name);
+    Serial.print("type : ");
+    Serial.println(type);
+    }
   virtual ~Output() {}
 };
 
@@ -61,8 +75,6 @@ public:
   void execute_func(const uint8_t* sensor_read_value){
     func_ptr(parameters, sensor_read_value);
   }
-
-
 };
 
 /**
@@ -77,6 +89,17 @@ public:
   bool status;
   friend class Hand;
   Sensor(int id, const String& name, Func_of_input func_of_input, int in_pin=-1, int out_pin=-1) : Input(id, name), func_of_input_obj(func_of_input), in_pin(in_pin), out_pin(out_pin), status(false){}
+  void debug_print() override{
+    Serial.println("--Sensor--");
+    Serial.print("id : ");
+    Serial.println(id);
+    Serial.print("name : ");
+    Serial.println(name);
+    Serial.print("in_pin : ");
+    Serial.println(in_pin);
+    Serial.print("out_pin : ");
+    Serial.println(out_pin);
+     }
   virtual void read_input(){}
 };
 
@@ -125,6 +148,15 @@ public:
   void set_calibration() override {
         // Implementation for motor type A calibration
   }
+  void debug_print() override{
+    Serial.println("--Motor--");
+    Serial.print("name : ");
+    Serial.println(name);
+    Serial.print("type : ");
+    Serial.println(type);
+    Serial.print("control_pin : ");
+    Serial.println(control_pin);
+     }
   void execute_action(int direction, int speed) override {
         // Implementation for motor type A command execution
   }
@@ -257,6 +289,32 @@ public:
   void add_command(Command* command){
       commands.push_back(command);
   }
+  void clear_hand(){
+    for (int i=0; i < inputs.size(); i++){
+      Input* input_ptr = inputs.back();  
+      delete input_ptr;
+      inputs.pop_back();  
+    }
+    for (int i=0; i < outputs.size(); i++){
+      Output* output_ptr = outputs.back();  
+      delete output_ptr;
+      outputs.pop_back();  
+    }
+  }
+
+  void debug_print(){
+    Serial.println(" ---------------------------------");
+    Serial.println(" ----- the hand inputs: ---------");
+    for (Input* input_ptr : inputs) {
+      input_ptr->debug_print();
+    }
+    Serial.println(" ----- the hand outputs: ---------");
+    for (Output* output_ptr : outputs) {
+      output_ptr->debug_print();
+    }
+    Serial.println(" ---------------------------------");
+    Serial.println(" ---------------------------------");
+  }
 
   Input* get_input_by_id(int id) {
     for (Input* input_ptr : inputs) {
@@ -273,6 +331,8 @@ public:
     }
     return NULL;
   }
+
+
 
 };
 
