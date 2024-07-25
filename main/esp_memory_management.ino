@@ -3,6 +3,7 @@
 
 #include <Preferences.h>
 
+extern Hand* hand;
 extern String yaml_configs;
 extern Preferences preference;
 
@@ -11,11 +12,11 @@ void load_configs(){
   yaml_configs = preference.getString("yaml_configs", "empty");
   if(yaml_configs != "empty"){
     Serial.println("found configurations");
-    Serial.println(yaml_configs);
+    //Serial.println(yaml_configs);
+    yaml_to_json(yaml_configs.c_str());
   } else {
     Serial.println("didn't find old configurations");
   }
-
   preference.end();
 }
 

@@ -8,6 +8,8 @@
 #include "hand_functions.ino"
 extern Hand* hand;
 
+void store_configs();
+
 void config_system(JsonDocument doc) {
   JsonArray input_list = doc["inputs"].as<JsonArray>();
 
@@ -76,10 +78,9 @@ void yaml_to_json(const char *yaml_str) {
   Serial.print("file type: ");
   Serial.println(file_type);
   if (strcmp(file_type, "config_system") == 0) {
+    hand->clear_hand();
     config_system(doc);
     store_configs();
-  } else if (file_type == "debug_mode") {
-    // add debug function
   } else {
     Serial.print("Received unknown file type: ");
     Serial.println(file_type);

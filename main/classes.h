@@ -290,12 +290,14 @@ public:
       commands.push_back(command);
   }
   void clear_hand(){
-    for (int i=0; i < inputs.size(); i++){
+    int inputs_size = inputs.size();
+    for (int i=0; i < inputs_size; i++){
       Input* input_ptr = inputs.back();  
       delete input_ptr;
       inputs.pop_back();  
     }
-    for (int i=0; i < outputs.size(); i++){
+    int outputs_size = outputs.size();
+    for (int i=0; i < outputs_size; i++){
       Output* output_ptr = outputs.back();  
       delete output_ptr;
       outputs.pop_back();  
