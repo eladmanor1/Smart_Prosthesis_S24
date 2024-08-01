@@ -7,6 +7,7 @@
 #define CLASSES_H
 #include <vector>
 #include <String>
+#include <map>
 
 typedef void (*FuncPtr)(std::map<String, double>, const uint8_t*);
 
