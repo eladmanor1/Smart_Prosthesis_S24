@@ -172,7 +172,7 @@ public:
   int sense_pin;
   int threshold;
   DC_motor(String name, String type,  int in1_pin ,  int in2_pin,  int sense_pin , int threshold)
-      : Motor(name, type, OUTPUT_MIN_VAL, OUTPUT_MAX_VAL), in1_pin(in1_pin) , in2_pin(in2_pin) , sense_pin(sense_pin) ,threshold(threshold){}
+      : Motor(name, type, LOW, HIGH), in1_pin(in1_pin) , in2_pin(in2_pin) , sense_pin(sense_pin) ,threshold(threshold){}
   void set_calibration() override {
         // Implementation for motor type A calibration
   }

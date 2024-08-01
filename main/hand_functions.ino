@@ -29,17 +29,13 @@ void finger_1_more_than_90_slow(Servo* my_servo , const uint8_t angle){
 }
 
 // /* --------- func: sensor_1_func main function --------------- */
-// void sensor_1_func(std::vector<double> params, const uint8_t *payload) {
+// void sensor_1_func(std::vector<String, double> params, const uint8_t *payload) {
 //   uint8_t sensor_id = payload[0];
 //   uint8_t sensor_value = payload[1];
 //   Serial.print("Got sensor id: ");
 //   Serial.println(sensor_id);
 //   Serial.print("With value: ");
 //   Serial.println(sensor_value);
-//   for (double param : params) {
-//     Serial.print("param: ");
-//     Serial.println(param);
-//   }
 
 //   Servo_motor* finger1_servo = (Servo_motor*)hand->get_output_by_name("finger1_servo");
 //   int control_pin = finger1_servo->control_pin;
