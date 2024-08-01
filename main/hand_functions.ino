@@ -75,6 +75,7 @@ void sensor_1_func(std::vector<double> params, const uint8_t *payload) {
   pinMode(in2_pin, OUTPUT);
   int motor_current = analogRead(sense_pin);
   while( motor_current < finger1_dc->threshold){
+    motor_current = analogRead(sense_pin);
     if(sensor_value == 10){
       // Rotate motor clockwise
     digitalWrite(in1_pin, HIGH);
