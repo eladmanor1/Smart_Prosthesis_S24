@@ -57,6 +57,13 @@ void sensor_1_func(std::map<String, double> params, const uint8_t *payload) {
   Serial.println(sensor_id);
   Serial.print("With value: ");
   Serial.println(sensor_value);
+  Serial.print("speed : ");
+  Serial.println(params["speed"]);
+  Serial.print("PARAM 2 : ");
+  Serial.println(params["param2"]);
+  Serial.print("PARAM 3 : ");
+  Serial.println(params["param3"]);
+
 
   DC_motor* finger1_dc = (DC_motor*)hand->get_output_by_name("finger1_dc");
   int in1_pin = finger1_dc->in1_pin;
@@ -66,22 +73,20 @@ void sensor_1_func(std::map<String, double> params, const uint8_t *payload) {
   pinMode(in1_pin, OUTPUT);
   pinMode(in2_pin, OUTPUT);
   int motor_current = analogRead(sense_pin);
-  while( motor_current < finger1_dc->threshold){
-    motor_current = analogRead(sense_pin);
-    if(sensor_value == 10){
-      // Rotate motor clockwise
+  Serial.print("motor_current : ");
+  Serial.println(motor_current);
+
+  hand->hand_state = CLOSING_HAND;
+  if(sensor_value == 10){
+    // Rotate motor clockwise
     digitalWrite(in1_pin, HIGH);
     digitalWrite(in2_pin, LOW);
-    }
-    else {
-      // Rotate motor counterclockwise
-      digitalWrite(in1_pin, LOW);
-      digitalWrite(in2_pin, HIGH);
-    }
   }
-  digitalWrite(in1_pin, LOW);
-  digitalWrite(in2_pin, LOW);
-  
+  else {
+    // Rotate motor counterclockwise
+    digitalWrite(in1_pin, LOW);
+    digitalWrite(in2_pin, HIGH);
+  }
 }
 
 std::map<String, FuncPtr> func_map = {

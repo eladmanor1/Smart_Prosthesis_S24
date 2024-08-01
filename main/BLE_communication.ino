@@ -80,7 +80,6 @@ class MyServerCallbacks : public BLEServerCallbacks {
         size_t data_size = pCharacteristic->getLength();
         Serial.print("Payload size: ");
         Serial.println(data_size);
-
     // Optionally print the payload data
         Serial.print("Payload data: ");
         for (size_t i = 0; i < data_size; ++i) {
@@ -182,7 +181,7 @@ void setAdvertizing(BLEServer *pServer) {
 }
 
 void init_BLE() {
-  BLEDevice::init("SMART_PROSTHESIS");
+  BLEDevice::init("SMART_PROSTHESIS_elad");
 
   // Create the BLE Server
   BLEServer *pServer = BLEDevice::createServer();

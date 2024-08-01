@@ -21,6 +21,12 @@ enum Direction{
 };
 
 
+enum state{
+  INITAIL_STATE,
+  CLOSING_HAND,
+  OPENIING_HAND
+};
+
 /**
  * @enum Relop
  * @brief Enumerates the possible relational operations for (*)end conditions. (* - will be explained later)
@@ -316,7 +322,8 @@ public:
   std::vector<Output*> outputs;
   std::vector<Input*> inputs;
   std::vector<Command*> commands;
-  Hand(){}
+  enum state hand_state;
+  Hand():hand_state(INITAIL_STATE){}
   void add_output(Output* output){
       outputs.push_back(output);
   }
@@ -339,6 +346,7 @@ public:
       delete output_ptr;
       outputs.pop_back();  
     }
+
   }
 
   void debug_print(){
