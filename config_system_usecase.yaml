@@ -10,9 +10,9 @@ inputs:
     function:
       name: "general_leg_pressure_func1" # string (required)
       parameters:
-        - 100 # (double)
-        - 500 # (double)
-        - 20 # (double)
+        param1: 100 # (double)
+        param2: 50 # (double)
+        param3: 20 # (double)
 
   - name: 'button' # string (required)
     id: 2 # int (between 0 to 255)

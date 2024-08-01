@@ -26,12 +26,16 @@ void config_system(JsonDocument doc) {
     const char *func_name = value["function"]["name"];
     Serial.print("func_name: ");
     Serial.println(func_name);
-    JsonArray func_params_list = value["function"]["parameters"].as<JsonArray>();
-    std::vector<double> func_params;
-    for (JsonVariant param : func_params_list) {
-      func_params.push_back((double)param);
-      Serial.print("prarm: ");
-      Serial.println((int)param);
+    JsonObject func_params_list = value["function"]["parameters"].as<JsonObject>();
+    std::map<String, double> func_params;
+    for (JsonPair param : func_params_list) {
+      String param_name = param.key().c_str();
+      double param_value = param.value();
+      func_params[param_name] = param_value;
+      Serial.print("prarm name: ");
+      Serial.println(param_name);
+      Serial.print("param value: ");
+      Serial.println(param_value);
     }
     String str_func_name(func_name);
     FuncPtr sensor_func = func_map[str_func_name];

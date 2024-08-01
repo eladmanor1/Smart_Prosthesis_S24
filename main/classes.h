@@ -8,9 +8,7 @@
 #include <vector>
 #include <String>
 
-typedef void (*FuncPtr)(std::vector<double>, const uint8_t*);
-#define OUTPUT_MIN_VAL 10
-#define OUTPUT_MAX_VAL 100
+typedef void (*FuncPtr)(std::map<String, double>, const uint8_t*);
 
 /**
  * @enum Direction
@@ -69,8 +67,8 @@ public:
 class Func_of_input {
 public:
   FuncPtr func_ptr;
-  std::vector<double> parameters;
-  Func_of_input(FuncPtr func_ptr, std::vector<double> parameters) : func_ptr(func_ptr), parameters(parameters){}
+  std::map<String,double> parameters;
+  Func_of_input(FuncPtr func_ptr, std::map<String,double> parameters) : func_ptr(func_ptr), parameters(parameters){}
 
   void execute_func(const uint8_t* sensor_read_value){
     func_ptr(parameters, sensor_read_value);
@@ -126,7 +124,7 @@ class Light_sensor : public Sensor {
 class Motor : public Output {
 public:
   int outputRange[2]; 
-  Motor(String name, String type, int output_min_val, int output_max_val)
+  Motor(String name, String type, const int output_min_val, const int output_max_val)
           : Output(name, type){
           outputRange[0] = output_min_val;
           outputRange[1] = output_max_val;
@@ -141,10 +139,12 @@ public:
 };
 
 class Servo_motor : public Motor {
+  const int output_min_val = 0;
+  const int output_max_val = 180;
 public:
   int control_pin;
   Servo_motor(String name, String type, int control_pin)
-      : Motor(name, type, OUTPUT_MIN_VAL, OUTPUT_MAX_VAL), control_pin(control_pin){}
+      : Motor(name, type, output_min_val, output_max_val), control_pin(control_pin){}
   void set_calibration() override {
         // Implementation for motor type A calibration
   }
