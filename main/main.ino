@@ -15,6 +15,7 @@ void process_payload_and_execute_command(const uint8_t* command_payload) {
     processing_command = true;
     int id = command_payload[0];
     Sensor* sensor = (Sensor*)(hand->get_input_by_id(id));
+    sensor->last_signal_timestamp = millis();
     if (sensor) {
       Serial.print("Got sensor: ");
       Serial.println(sensor->name);

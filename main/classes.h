@@ -37,14 +37,15 @@ enum Relop{
 };
 
 /**
- * @class Sensor
+ * @class input
  * @brief Abstract base class for system elements that can serve as inputs. (motors / sensors)
  */
 class Input {
 public:
   int id;
   String name;
-  Input(int id, String name): id(id), name(name){}
+  unsigned long last_signal_timestamp;
+  Input(int id, String name): id(id), name(name), last_signal_timestamp(0){}
   virtual void debug_print(){
     Serial.println("--INPUT--");
     Serial.print("id : ");

@@ -3,7 +3,9 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ArduinoJson.h>
+#include "classes.h"
 
+extern Hand* hand;
 void process_payload_and_execute_command(const uint8_t* command_payload);
 void yaml_to_json(const char *yaml_str);
 
@@ -90,6 +92,40 @@ void get_configs() {
   }
 }
 
+
+void send_sensors_page() {
+  String html = "<html>"
+                "<head>"
+                "<style>"
+                "body { font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 20px; }"
+                "h1 { color: #333; }"
+                ".content { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); margin-top: 20px; }"
+                ".item { margin-bottom: 10px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; }"
+                "</style>"
+                "</head>"
+                "<body>"
+                "<h1>Array Content Display</h1>"
+                "<div class='content'>";
+  
+  for (Input* sensor_ptr : hand->inputs) {
+    int sensor_counter = 0;
+    if (sensor_ptr->last_signal_timestamp > 0){
+      String sensor_summary = "Sensor " + String(sensor_ptr->id) + " last connection was" + String((millis() - sensor_ptr->last_signal_timestamp)/1000) + " seconds ago.";  
+      html += "<div class='item'>" + sensor_summary + "</div>";
+      sensor_counter++;
+    }
+    if (sensor_counter == 0){
+      html += "<div class='item'>" + String("No connected sensors yet.") + "</div>";
+    }
+  }
+  
+  html += "</div>"
+          "</body>"
+          "</html>";
+
+  server.send(200, "text/html", html);
+}
+
 void send_command_page() {
   // Serve the HTML page with input boxes for id and sensor_value
   server.send(200, "text/html",
@@ -142,6 +178,7 @@ void bring_up_wifi_server() {
   server.on("/submit", HTTP_POST, get_configs);
   server.on("/send_command", HTTP_GET, send_command_page);
   server.on("/send_command", HTTP_POST, get_command);
+  server.on("/sensors_summary", HTTP_GET, send_sensors_page);
   server.begin();
   Serial.println("HTTP server started");
 }
