@@ -165,6 +165,42 @@ public:
   }
 };
 
+class DC_motor : public Motor {
+public:
+  int in1_pin;
+  int in2_pin;
+  int sense_pin;
+  int threshold;
+  DC_motor(String name, String type,  int in1_pin ,  int in2_pin,  int sense_pin , int threshold)
+      : Motor(name, type, OUTPUT_MIN_VAL, OUTPUT_MAX_VAL), in1_pin(in1_pin) , in2_pin(in2_pin) , sense_pin(sense_pin) ,threshold(threshold){}
+  void set_calibration() override {
+        // Implementation for motor type A calibration
+  }
+  void debug_print() override{
+    Serial.println("--Motor--");
+    Serial.print("name : ");
+    Serial.println(name);
+    Serial.print("type : ");
+    Serial.println(type);
+    Serial.print("in1_pin : ");
+    Serial.println(in1_pin);
+    Serial.print("in2_pin : ");
+    Serial.println(in2_pin);
+    Serial.print("sense_pin : ");
+    Serial.println(sense_pin);
+    Serial.print("threshold : ");
+    Serial.println(threshold);
+    }
+  void execute_action(int direction, int speed) override {
+        // Implementation for motor type A command execution
+  }
+  int read_input() override {
+        // Implementation for motor type A command execution
+  }
+};
+
+
+
 /**
  * @class End_condition
  * @brief Class for defining end conditions for actions. 

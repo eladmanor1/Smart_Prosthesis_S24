@@ -9,7 +9,7 @@ void yaml_to_json(const char *yaml_str);
 
 #define num_of_args 2
 
-const char* ssid = "Smart_Prosthesis_c";          // Name of the Wi-Fi network
+const char* ssid = "Smart_Prosthesis_c_elad";          // Name of the Wi-Fi network
 const char* password = "your_PASSWORD";      // Password for the Wi-Fi network
 
 WebServer server(80);

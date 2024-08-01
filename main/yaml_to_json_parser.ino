@@ -60,7 +60,26 @@ void config_system(JsonDocument doc) {
       Servo_motor *servo_motor = new Servo_motor(output_name, output_type, control_pin);
       hand->add_output(servo_motor);
     } else if (strcmp(output_type, "DC_motor") == 0) {
-        // add logic
+      JsonArray pins_list = value["pins"].as<JsonArray>();
+      int in1_pin;
+      int in2_pin;
+      int sense_pin;
+      int threshold;
+      for (JsonVariant pin : pins_list) {
+        const char *pin_type = pin["type"];
+        if (strcmp(pin_type, "in1_pin") == 0) {
+          in1_pin = pin["pin_number"];
+        }
+        if (strcmp(pin_type, "in2_pin") == 0) {
+        in2_pin = pin["pin_number"];
+        }
+        if (strcmp(pin_type, "sense_pin") == 0) {
+        sense_pin = pin["pin_number"];
+        }
+        threshold = value["threshold"];
+      }
+      DC_motor *dc_motor = new DC_motor(output_name, output_type, in1_pin, in2_pin, sense_pin,threshold);
+      hand->add_output(dc_motor);
     }
   }
   hand->debug_print();
