@@ -110,7 +110,7 @@ void send_sensors_page() {
   for (Input* sensor_ptr : hand->inputs) {
     int sensor_counter = 0;
     if (sensor_ptr->last_signal_timestamp > 0){
-      String sensor_summary = "Sensor " + String(sensor_ptr->id) + " last connection was" + String((millis() - sensor_ptr->last_signal_timestamp)/1000) + " seconds ago.";  
+      String sensor_summary = "Sensor " + sensor_ptr->name +" type: " + sensor_ptr->type + " last connection was " + String((millis() - sensor_ptr->last_signal_timestamp)/1000) + " seconds ago.";  
       html += "<div class='item'>" + sensor_summary + "</div>";
       sensor_counter++;
     }

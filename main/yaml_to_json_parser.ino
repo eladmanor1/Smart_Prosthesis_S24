@@ -44,7 +44,7 @@ void config_system(JsonDocument doc) {
       Serial.println(str_func_name);
     }
     Func_of_input func_of_input(sensor_func, func_params);
-    Sensor *sensor = new Sensor(id, input_name, func_of_input);
+    Sensor *sensor = new Sensor(id, input_name, sensor_type, func_of_input);
     hand->add_input(sensor);
   }
 

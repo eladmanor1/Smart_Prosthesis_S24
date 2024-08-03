@@ -44,8 +44,9 @@ class Input {
 public:
   int id;
   String name;
+  String type;
   unsigned long last_signal_timestamp;
-  Input(int id, String name): id(id), name(name), last_signal_timestamp(0){}
+  Input(int id, String name , String type): id(id), name(name),type(type), last_signal_timestamp(0){}
   virtual void debug_print(){
     Serial.println("--INPUT--");
     Serial.print("id : ");
@@ -94,13 +95,15 @@ public:
   int out_pin;
   bool status;
   friend class Hand;
-  Sensor(int id, const String& name, Func_of_input func_of_input, int in_pin=-1, int out_pin=-1) : Input(id, name), func_of_input_obj(func_of_input), in_pin(in_pin), out_pin(out_pin), status(false){}
+  Sensor(int id, const String name, const String type, Func_of_input func_of_input, int in_pin=-1, int out_pin=-1) : Input(id, name, type), func_of_input_obj(func_of_input), in_pin(in_pin), out_pin(out_pin), status(false){}
   void debug_print() override{
     Serial.println("--Sensor--");
     Serial.print("id : ");
     Serial.println(id);
     Serial.print("name : ");
     Serial.println(name);
+    Serial.print("type : ");
+    Serial.println(type);
     Serial.print("in_pin : ");
     Serial.println(in_pin);
     Serial.print("out_pin : ");
@@ -109,21 +112,21 @@ public:
   virtual void read_input(){}
 };
 
-class Distance_sensor : public Sensor {
-  public:
-  Distance_sensor(int id, const String& name, int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
-  void read_input() override {
-      // Implementation for reading distance sensor
-    }
-};
+// class Distance_sensor : public Sensor {
+//   public:
+//   Distance_sensor(int id, const String name, const String type,  int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
+//   void read_input() override {
+//       // Implementation for reading distance sensor
+//     }
+// };
 
-class Light_sensor : public Sensor {
-  public:
-  Light_sensor(int id, const String& name, int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
-  void read_input() override {
-      // Implementation for reading light sensor
-    }
-};
+// class Light_sensor : public Sensor {
+//   public:
+//   Light_sensor(int id, const String name , const String type, int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
+//   void read_input() override {
+//       // Implementation for reading light sensor
+//     }
+// };
 
 /**
  * @class Motor

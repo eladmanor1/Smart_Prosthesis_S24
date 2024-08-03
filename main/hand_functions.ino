@@ -7,6 +7,12 @@
 
 extern Hand* hand;
 
+// -------------------------------------------------------------------------------------------------------------------------------- // 
+// ------------------------------------------------- functions --------------------------------------------------------------- // 
+// -------------------------------------------------------------------------------------------------------------------------------- // 
+
+
+
 /* --------- func: sensor_1_func sub functions --------------- */
 
 void finger_1_up_to_90_fast(Servo* my_servo , const uint8_t angle){
@@ -93,5 +99,22 @@ std::map<String, FuncPtr> func_map = {
   {"sensor_1_func", sensor_1_func}
 };
 
+
+// -------------------------------------------------------------------------------------------------------------------------------- // 
+// ------------------------------------------------- end conditions --------------------------------------------------------------- // 
+// -------------------------------------------------------------------------------------------------------------------------------- // 
+void check_end_conditions(std::map<String , double> currents){
+  switch(hand->hand_state){
+    case CLOSING_HAND:
+      DC_motor* finger1_motor =(DC_motor*)hand->get_output_by_name("finger1_dc");
+      if(currents["finger1_dc"] > finger1_motor->threshold){
+        digitalWrite(finger1_motor->in1_pin, LOW);
+        digitalWrite(finger1_motor->in2_pin, LOW);
+        hand->hand_state=INITAIL_STATE;
+      }
+    break;
+      }
+}
+      
 
 #endif /* HAND_FUNCTIONS */

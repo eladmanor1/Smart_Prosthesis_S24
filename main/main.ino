@@ -4,19 +4,22 @@
 #include "BLE_communication.ino"
 #include "yaml_to_json_parser.ino"
 #include "esp_memory_management.ino"
+
+
+
 #define STACK_SIZE 2048
 Preferences preference;
 Hand* hand;
 bool processing_command = false;
-
+void check_end_conditions();
 
 void process_payload_and_execute_command(const uint8_t* command_payload) {
   if (!processing_command) {
     processing_command = true;
     int id = command_payload[0];
     Sensor* sensor = (Sensor*)(hand->get_input_by_id(id));
-    sensor->last_signal_timestamp = millis();
     if (sensor) {
+      sensor->last_signal_timestamp = millis();
       Serial.print("Got sensor: ");
       Serial.println(sensor->name);
       sensor->func_of_input_obj.execute_func(command_payload);
@@ -39,27 +42,15 @@ void motors_senses_polling(void* pvParameters){
       for (Output* output : hand->outputs){
         if(output->type == "DC_motor"){ 
           DC_motor* motor_ptr = (DC_motor*)output;
-          currents[motor_ptr->name] = (currents[motor_ptr->name])*0.9 + analogRead(motor_ptr->sense_pin)*0.1;
+          currents[motor_ptr->name] = (currents[motor_ptr->name])*0.85 + analogRead(motor_ptr->sense_pin)*0.15;
           if((int)currents[motor_ptr->name] != 0){
             Serial.print("Got current: ");
             Serial.println(currents[motor_ptr->name] );
           }
 
         }
-      
       }
-      //  -------------------------- end conditions for functions -------------------------------------- //
-      switch(hand->hand_state){
-        case CLOSING_HAND:
-          DC_motor* finger1_motor =(DC_motor*)hand->get_output_by_name("finger1_dc");
-          if(currents["finger1_dc"] > finger1_motor->threshold){
-            digitalWrite(finger1_motor->in1_pin, LOW);
-            digitalWrite(finger1_motor->in2_pin, LOW);
-            hand->hand_state=INITAIL_STATE;
-          }
-        break;
-
-      }
+      check_end_conditions(currents);
     }
 }
 
