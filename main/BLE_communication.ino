@@ -7,7 +7,8 @@
 #include <classes.h>
 
 void process_payload_and_execute_command(const uint8_t* command_payload);
-
+extern SemaphoreHandle_t xMutex_payload;
+extern Received_command cmd;
 // -------------------------------------------------------------------------------------------------- //
 // ------------------------------------------ SYSTEM CONSTS  ---------------------------------------- //
 // -------------------------------------------------------------------------------------------------- //
@@ -75,24 +76,30 @@ class MyServerCallbacks : public BLEServerCallbacks {
     */
     class SensorCallbacks : public BLECharacteristicCallbacks {
         void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
-        // Check the payload size
-        const uint8_t *command_payload = pCharacteristic->getData();
-        size_t data_size = pCharacteristic->getLength();
-        Serial.print("Payload size: ");
-        Serial.println(data_size);
-    // Optionally print the payload data
-        Serial.print("Payload data: ");
-        for (size_t i = 0; i < data_size; ++i) {
-            Serial.print(command_payload[i], HEX);
-          Serial.print(" ");
-        }
-        Serial.println();
-        process_payload_and_execute_command(command_payload);
+          if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
+            cmd.command_payload_len = pCharacteristic->getLength();
+            Serial.print("Payload size: ");
+            Serial.println(cmd.command_payload_len);
+            Serial.print("Payload data: ");
+            const uint8_t* data_ptr = pCharacteristic->getData();
+            for (size_t i = 0; i < cmd.command_payload_len; ++i) {
+              cmd.command_payload[i] = data_ptr[i];
+              Serial.print(cmd.command_payload[i], HEX);
+              Serial.print(" ");
+            }
+            Serial.println();
+            cmd.is_pending = true;
+            xSemaphoreGive(xMutex_payload);
+          }
       };
     };
-    // ---------------------------------------------------------------------------------------------------------- //
-    // ---------------------------------------------------------------------------------------------------------- //
-    // ---------------------------------------------------------------------------------------------------------- //
+// ---------------------------------------------------------------------------------------------------------- //
+// ---------------------------------------------------------------------------------------------------------- //
+// ---------------------------------------------------------------------------------------------------------- //
+
+
+
+
 
 // ------------------------------------------------------------------------------------- //
 // ---------------------------  Services Setup Functions ------------------------------- //

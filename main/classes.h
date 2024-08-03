@@ -10,6 +10,8 @@
 #include <map>
 
 typedef void (*FuncPtr)(std::map<String, double>, const uint8_t*);
+#define MAX_PAYLOAD_SIZE 256
+
 
 /**
  * @enum Direction
@@ -266,55 +268,12 @@ public:
   }
 };
 
-/**
- * @class Command
- * @brief Class for defining commands composed of multiple actions that is executed simultaneously.
- */
-class Command{
+class Received_command{
   public:
-  String name;
-  std::vector<Action*> actions;
-  Command(const String& name): name(name){};
-  
-  void push_action(Action* action){
-      actions.push_back(action);
-  }
-  void execute(int speed){
-      for(Action* action_ptr : actions){
-        action_ptr->execute(speed);
-    }
-    bool flag = false;
-    while(flag){
-        flag = false;
-      for(Action* action_ptr : actions){
-        if(action_ptr->check_end_conditions())
-          action_ptr->halt();
-        else flag = true;
-      }
-    }
-  }
-};
-
-/**
- * @class Sequential_command
- * @brief Class for defining sequential commands composed of multiple sub-commands that occurs synchronously.
- */
-class Sequential_command : public Command{
-  public:
-  std::vector<Command*> sub_commands;
-  Sequential_command(const String& name): Command(name) {};
-  
-  void push_command(Command* command){
-      sub_commands.push_back(command);
-  }
-  /**
-  * @brief execute all sub_commands synchronously.
-  */
-  void execute(int speed = -1){
-      for(Command* command_ptr : sub_commands){
-        command_ptr->execute(speed);
-    }
-  }
+    uint8_t command_payload[MAX_PAYLOAD_SIZE];
+    int command_payload_len;
+    bool is_pending;
+    Received_command(): command_payload(NULL),command_payload_len(0) , is_pending(false) {}
 };
 
 /**
@@ -325,7 +284,6 @@ class Hand{
 public:
   std::vector<Output*> outputs;
   std::vector<Input*> inputs;
-  std::vector<Command*> commands;
   enum state hand_state;
   Hand():hand_state(INITAIL_STATE){}
   void add_output(Output* output){
@@ -333,9 +291,6 @@ public:
   }
   void add_input(Input* input){
       inputs.push_back(input);
-  }
-  void add_command(Command* command){
-      commands.push_back(command);
   }
   void clear_hand(){
     int inputs_size = inputs.size();
@@ -350,7 +305,6 @@ public:
       delete output_ptr;
       outputs.pop_back();  
     }
-
   }
 
   void debug_print(){
@@ -382,53 +336,6 @@ public:
     }
     return NULL;
   }
-
-
-
-};
-
-// /**
-//  * @class Connection
-//  * @brief Represents a connection for a sensory system.
-//  */
-// class Connection{
-// public:
-//   String sensory_system_id;
-//   bool status;
-
-//   Connection(String sensory_system_id): sensory_system_id(sensory_system_id), status(false){}
-//   virtual void configure_connection();
-// };
-
-// /**
-//  * @class Wifi
-//  * @brief Represents a Wifi connection for a sensory system.
-//  */
-// class Wifi : Connection{
-// public:
-//   Wifi(String protocol_type, String sensory_system_id): Connection(protocol_type, sensory_system_id){}
-//   void configure_connection();
-// };
-
-// /**
-//  * @class Bluetooth
-//  * @brief Represents a Bluetooth connection for a sensory system.
-//  */
-// class Bluetooth : Connection{
-//   public:
-//   Bluetooth(String protocol_type, String sensory_system_id): Connection(protocol_type, sensory_system_id){}
-//     void configure_connection();
-// };
-
-/**
- * @class System
- * @brief Represents the overall system with a hand.
- */
-class System{
-  public:
-  Hand* hand;
-  System(Hand* hand)
-    : hand(hand){}
 };
 
 #endif

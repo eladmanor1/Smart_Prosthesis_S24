@@ -6,6 +6,8 @@
 #include "classes.h"
 
 extern Hand* hand;
+extern Received_command cmd;
+extern SemaphoreHandle_t xMutex_payload;
 void process_payload_and_execute_command(const uint8_t* command_payload);
 void yaml_to_json(const char *yaml_str);
 
@@ -154,15 +156,18 @@ void send_command_page() {
 
 void get_command() {
   if (server.method() == HTTP_POST) {
-    // Get the command text box content
-    uint8_t command_payload[2];
-    command_payload[0] = (uint8_t)server.arg("id").toInt();
-    command_payload[1] = (uint8_t)server.arg("sensor_value").toInt();
-    process_payload_and_execute_command(command_payload);
-    // Send response back to the client
-    server.send(200, "text/html", "<html><body><h1>Command received</h1></body></html>");
-  } else {
+    if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
+      cmd.command_payload[0] = (uint8_t)server.arg("id").toInt();
+      cmd.command_payload[1] = (uint8_t)server.arg("sensor_value").toInt();
+      cmd.command_payload_len = 2;
+      cmd.is_pending = true;
+      xSemaphoreGive(xMutex_payload);
+      // Send response back to the client
+      server.send(200, "text/html", "<html><body><h1>Command received</h1></body></html>");
+    } 
+  else {
     server.send(405, "text/plain", "Method Not Allowed");
+  }
   }
 }
 

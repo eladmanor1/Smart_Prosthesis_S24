@@ -6,7 +6,7 @@
 #include <ESP32Servo.h>
 
 extern Hand* hand;
-
+extern SemaphoreHandle_t xMutex_state;
 // -------------------------------------------------------------------------------------------------------------------------------- // 
 // ------------------------------------------------- functions --------------------------------------------------------------- // 
 // -------------------------------------------------------------------------------------------------------------------------------- // 
@@ -81,8 +81,11 @@ void sensor_1_func(std::map<String, double> params, const uint8_t *payload) {
   int motor_current = analogRead(sense_pin);
   Serial.print("motor_current : ");
   Serial.println(motor_current);
-
-  hand->hand_state = CLOSING_HAND;
+  if (xSemaphoreTake(xMutex_state, portMAX_DELAY)){
+    hand->hand_state = CLOSING_HAND;
+    xSemaphoreGive(xMutex_state);
+  }
+  
   if(sensor_value == 10){
     // Rotate motor clockwise
     digitalWrite(in1_pin, HIGH);
@@ -104,17 +107,32 @@ std::map<String, FuncPtr> func_map = {
 // ------------------------------------------------- end conditions --------------------------------------------------------------- // 
 // -------------------------------------------------------------------------------------------------------------------------------- // 
 void check_end_conditions(std::map<String , double> currents){
-  switch(hand->hand_state){
-    case CLOSING_HAND:
-      DC_motor* finger1_motor =(DC_motor*)hand->get_output_by_name("finger1_dc");
-      if(currents["finger1_dc"] > finger1_motor->threshold){
-        digitalWrite(finger1_motor->in1_pin, LOW);
-        digitalWrite(finger1_motor->in2_pin, LOW);
-        hand->hand_state=INITAIL_STATE;
-      }
-    break;
-      }
+  enum state hand_state;
+  if (xSemaphoreTake(xMutex_state, portMAX_DELAY)){
+    DC_motor* finger1_motor;
+    DC_motor* finger2_motor;
+    switch(hand->hand_state){
+      case (CLOSING_HAND):
+        finger1_motor =(DC_motor*)hand->get_output_by_name("finger1_dc");
+        if(!finger1_motor) break;
+        if(currents["finger1_dc"] > finger1_motor->threshold){
+          digitalWrite(finger1_motor->in1_pin, LOW);
+          digitalWrite(finger1_motor->in2_pin, LOW);
+          hand->hand_state=INITAIL_STATE;
+        }
+        break;
+      case (OPENIING_HAND):
+        finger2_motor =(DC_motor*)hand->get_output_by_name("finger2_dc");
+        if(!finger2_motor) break;
+        if(currents["finger2_dc"] > finger2_motor->threshold){
+          digitalWrite(finger2_motor->in1_pin, LOW);
+          digitalWrite(finger2_motor->in2_pin, LOW);
+          hand->hand_state=INITAIL_STATE;
+        }
+        break;
+    }
+      xSemaphoreGive(xMutex_state);
+  }
 }
       
-
 #endif /* HAND_FUNCTIONS */
