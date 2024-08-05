@@ -81,7 +81,7 @@ void send_configs_page() {
 }
 
 
-void get_configs() {
+void get_configs_from_web() {
   if (server.method() == HTTP_POST) {
     // Get the multi-line text box content
     yaml_configs = server.arg("textbox");
@@ -154,7 +154,7 @@ void send_command_page() {
   );
 }
 
-void get_command() {
+void get_command_from_web() {
   if (server.method() == HTTP_POST) {
     if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
       cmd.command_payload[0] = (uint8_t)server.arg("id").toInt();
@@ -171,6 +171,32 @@ void get_command() {
   }
 }
 
+void get_sensor_value() {
+  if (server.method() == HTTP_POST) {
+    if (server.hasArg("plain")) {
+      String body = server.arg("plain");
+      if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
+        cmd.command_payload_len = body.length();
+        cmd.is_pending = true;
+        for( int i=0; i < body.length(); i++) {
+            cmd.command_payload[i] = (uint8_t)body[i];
+            Serial.print("body[i]: ");
+            Serial.print(body[i]);
+        }
+        Serial.print(" body.length(): ");
+        Serial.println(body.length());
+        xSemaphoreGive(xMutex_payload);
+      }
+        server.send(200, "text/plain", "Data received");
+    } else {
+      server.send(400, "text/plain", "No plain data");
+    }
+  } else {
+    server.send(405, "text/plain", "Method Not Allowed");
+  }
+}
+
+
 void bring_up_wifi_server() {
   Serial.println("Access Point started");
   // Set up Wi-Fi in Access Point mode
@@ -180,10 +206,11 @@ void bring_up_wifi_server() {
 
   // Set up the server to handle requests
   server.on("/", HTTP_GET, send_configs_page);
-  server.on("/submit", HTTP_POST, get_configs);
+  server.on("/submit", HTTP_POST, get_configs_from_web);
   server.on("/send_command", HTTP_GET, send_command_page);
-  server.on("/send_command", HTTP_POST, get_command);
+  server.on("/send_command", HTTP_POST, get_command_from_web);
   server.on("/sensors_summary", HTTP_GET, send_sensors_page);
+  server.on("/sensor_data", HTTP_POST, get_sensor_value);
   server.begin();
   Serial.println("HTTP server started");
 }
