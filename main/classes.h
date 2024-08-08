@@ -18,12 +18,15 @@ typedef void (*FuncPtr)(std::map<String, double>, const uint8_t*);
  * @brief Enumerates the possible directions for motor movement.
  */
 enum Direction{
-  LEFT,
-  RIGHT
+  STOP,
+  FORWARD,
+  BACKWARD,
+  CLOCKWISE,
+  COUNTER_CLOCKWISE
 };
 
 
-enum state{
+enum hand_state{
   INITAIL_STATE,
   CLOSING_HAND,
   OPENIING_HAND
@@ -36,6 +39,18 @@ enum state{
 enum Relop{
   GREATER_THAN,
   SMALLER_THAN
+};
+
+/**
+ * @class State
+ * @brief  base class for motor State. 
+ */
+class Motor_state {
+public:
+  enum Direction dir;
+  int speed;
+  int custom_threshold;
+  Motor_state(int custom_threshold, enum Direction dir = STOP, int speed = 0): dir(dir), speed(speed), custom_threshold(custom_threshold){}
 };
 
 /**
@@ -136,12 +151,21 @@ public:
  */
 class Motor : public Output {
 public:
+  int safety_threshold;
+  Motor_state state;
   int outputRange[2]; 
-  Motor(String name, String type, const int output_min_val, const int output_max_val)
-          : Output(name, type){
+  Motor(String name, String type, int safety_threshold, const int output_min_val, const int output_max_val)
+          : Output(name, type), safety_threshold(safety_threshold), state(Motor_state(safety_threshold)) {
           outputRange[0] = output_min_val;
           outputRange[1] = output_max_val;
-      }
+  }
+  void set_state(enum Direction dir = STOP, int custom_threshold = 0, int speed = 0){
+    if (custom_threshold == 0)
+      custom_threshold = safety_threshold;
+    state.custom_threshold = min(custom_threshold, safety_threshold);
+    state.dir = dir;
+    state.speed = speed;
+  }
   /**
     * @brief Pure virtual function to set calibration for the motor.
     * (e.g. linear manipulation performed on the input before sent to the motor)
@@ -151,41 +175,13 @@ public:
   virtual int read_input(){}
 };
 
-class Servo_motor : public Motor {
-  const int output_min_val = 0;
-  const int output_max_val = 180;
-public:
-  int control_pin;
-  Servo_motor(String name, String type, int control_pin)
-      : Motor(name, type, output_min_val, output_max_val), control_pin(control_pin){}
-  void set_calibration() override {
-        // Implementation for motor type A calibration
-  }
-  void debug_print() override{
-    Serial.println("--Motor--");
-    Serial.print("name : ");
-    Serial.println(name);
-    Serial.print("type : ");
-    Serial.println(type);
-    Serial.print("control_pin : ");
-    Serial.println(control_pin);
-     }
-  void execute_action(int direction, int speed) override {
-        // Implementation for motor type A command execution
-  }
-  int read_input() override {
-        // Implementation for motor type A command execution
-  }
-};
-
 class DC_motor : public Motor {
 public:
   int in1_pin;
   int in2_pin;
   int sense_pin;
-  int threshold;
-  DC_motor(String name, String type,  int in1_pin ,  int in2_pin,  int sense_pin , int threshold)
-      : Motor(name, type, LOW, HIGH), in1_pin(in1_pin) , in2_pin(in2_pin) , sense_pin(sense_pin) ,threshold(threshold){}
+  DC_motor(String name, String type,  int in1_pin ,  int in2_pin,  int sense_pin , int safety_threshold)
+      : Motor(name, type, safety_threshold, LOW, HIGH), in1_pin(in1_pin) , in2_pin(in2_pin) , sense_pin(sense_pin){}
   void set_calibration() override {
         // Implementation for motor type A calibration
   }
@@ -201,8 +197,8 @@ public:
     Serial.println(in2_pin);
     Serial.print("sense_pin : ");
     Serial.println(sense_pin);
-    Serial.print("threshold : ");
-    Serial.println(threshold);
+    Serial.print("safety_threshold : ");
+    Serial.println(safety_threshold);
     }
   void execute_action(int direction, int speed) override {
         // Implementation for motor type A command execution
@@ -214,59 +210,6 @@ public:
 
 
 
-/**
- * @class End_condition
- * @brief Class for defining end conditions for actions. 
- * e.g. stop the action X(type Action) when the input from sensor Y(type Input) is higher than Z(type int)
- */
-class End_condition{
-public:
-  Input* sensor;
-  int threshold;
-  Relop relop;
-  End_condition(Input* sensor, int threshold, Relop relop): sensor(sensor), threshold(threshold), relop(relop){}
-  /**
-     * @brief Checks if the end condition is met.
-     * @return True if the end condition is met, false otherwise.
-  */
-  bool condition_is_met(){
-      // TO-DO
-  }
-};
-
-/**
- * @class Action
- * @brief Class for defining actions involving motors and end conditions. 
- * e.g. Action X includes a motor and relevant parameters to the motor, and an End_condition object 
- *      defines when to stop the action after it was triggered.
- * @note An action can be stopped also due to motor's threshold, even before action's enc_condition is met. 
- */
-class Action{
-public:
-  Motor* motor;
-  int speed;
-  Direction direction;
-  End_condition end_condition; 
-  Action(Motor* motor, Direction direction, End_condition end_condition): motor(motor), direction(direction), end_condition(end_condition){}
-  /**
-  * @brief Initiates the motor operation.
-  */
-  void execute(int speed){
-      // TO-DO
-  }
-  /**
-  * @brief Halts the motor operation.
-  */
-  void halt(){
-      // TO-DO: stop motor operation
-  }
-  /**
-  * @brief check if the action's end condiiton is met *****what about threshold.
-  */
-  bool check_end_conditions(){
-      return (end_condition.condition_is_met());
-  }
-};
 
 class Received_command{
   public:
@@ -284,7 +227,7 @@ class Hand{
 public:
   std::vector<Output*> outputs;
   std::vector<Input*> inputs;
-  enum state hand_state;
+  enum hand_state hand_state;
   Hand():hand_state(INITAIL_STATE){}
   void add_output(Output* output){
       outputs.push_back(output);

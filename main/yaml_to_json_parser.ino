@@ -52,23 +52,12 @@ void config_system(JsonDocument doc) {
   for (JsonVariant value : output_list) {
     const char *output_name = value["name"];
     const char *output_type = value["type"];
-    if (strcmp(output_type, "servo_motor") == 0) {
-      JsonArray pins_list = value["pins"].as<JsonArray>();
-      int control_pin;
-      for (JsonVariant pin : pins_list) {
-        const char *pin_type = pin["type"];
-        if (strcmp(pin_type, "control") == 0) {
-          control_pin = pin["pin_number"];
-        }
-      }
-      Servo_motor *servo_motor = new Servo_motor(output_name, output_type, control_pin);
-      hand->add_output(servo_motor);
-    } else if (strcmp(output_type, "DC_motor") == 0) {
+    if (strcmp(output_type, "DC_motor") == 0) {
       JsonArray pins_list = value["pins"].as<JsonArray>();
       int in1_pin;
       int in2_pin;
       int sense_pin;
-      int threshold;
+      int safety_threshold;
       for (JsonVariant pin : pins_list) {
         const char *pin_type = pin["type"];
         if (strcmp(pin_type, "in1_pin") == 0) {
@@ -80,9 +69,9 @@ void config_system(JsonDocument doc) {
         if (strcmp(pin_type, "sense_pin") == 0) {
         sense_pin = pin["pin_number"];
         }
-        threshold = value["threshold"];
+        safety_threshold = value["safety_threshold"];
       }
-      DC_motor *dc_motor = new DC_motor(output_name, output_type, in1_pin, in2_pin, sense_pin,threshold);
+      DC_motor *dc_motor = new DC_motor(output_name, output_type, in1_pin, in2_pin, sense_pin,safety_threshold);
       hand->add_output(dc_motor);
     }
   }

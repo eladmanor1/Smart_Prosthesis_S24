@@ -17,14 +17,14 @@ void setup() {
 }
 
 void loop() {
+  uint8_t value = 0;
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(serverName);
 
     uint8_t id = 1;
-    uint8_t value = 69;
     uint8_t payload[2] = {id, value};
-
+    value+=1;
     http.addHeader("Content-Type", "application/octet-stream");
     int httpResponseCode = http.POST(payload, 2);
 
@@ -41,4 +41,7 @@ void loop() {
     Serial.println("WiFi Disconnected");
   }
   delay(1000); // Send data every second
+  if(value > 20){
+    value=0;
+  }
 }

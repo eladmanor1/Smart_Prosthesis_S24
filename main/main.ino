@@ -6,7 +6,6 @@
 #include "esp_memory_management.ino"
 
 #define STACK_SIZE 2048
-
 Preferences preference;
 Hand* hand;
 void check_end_conditions();
@@ -18,7 +17,7 @@ Received_command cmd;
 // ------------------------------------ //
 
 
-void process_payload_and_execute_command(void* pvParameters) {
+void process_payload_and_manage_logic(void* pvParameters) {
   while(1){
     if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
         if (cmd.is_pending){
@@ -44,8 +43,7 @@ void process_payload_and_execute_command(void* pvParameters) {
   }
 }
 
-
-void motors_senses_polling(void* pvParameters){
+void HW_management(void* pvParameters){
   std::map<String , double> currents;
   for (Output* output : hand->outputs){
     if(output->type == "DC_motor"){ //initailization 
@@ -53,17 +51,18 @@ void motors_senses_polling(void* pvParameters){
     }
   }
   while(1){
+    vTaskDelay(10);
     for (Output* output : hand->outputs){
       if(output->type == "DC_motor"){ 
         DC_motor* motor_ptr = (DC_motor*)output;
-        currents[motor_ptr->name] = (currents[motor_ptr->name])*0.85 + analogRead(motor_ptr->sense_pin)*0.15;
+        currents[motor_ptr->name] = (currents[motor_ptr->name])*FILTER_RATIO + analogRead(motor_ptr->sense_pin)*(1-FILTER_RATIO);
         if((int)currents[motor_ptr->name] != 0){
           Serial.print("Got current: ");
           Serial.println(currents[motor_ptr->name] );
         }
       }
     }
-    check_end_conditions(currents);
+    HW_execute(currents);
   }
 }
 
@@ -76,8 +75,8 @@ void setup() {
   load_configs();
   xMutex_state = xSemaphoreCreateMutex();
   xMutex_payload = xSemaphoreCreateMutex();
-  xTaskCreate(motors_senses_polling , "motors_senses_polling", STACK_SIZE ,NULL ,1, NULL);
-  xTaskCreate(process_payload_and_execute_command , "process_payload_and_execute_command", STACK_SIZE ,NULL ,1, NULL);
+  xTaskCreate(HW_management, "HW_management", STACK_SIZE ,NULL ,1, NULL);
+  xTaskCreate(process_payload_and_manage_logic , "process_payload_and_manage_logic", STACK_SIZE ,NULL ,1, NULL);
 }
 
 void loop() {
