@@ -12,7 +12,6 @@
 typedef void (*FuncPtr)(std::map<String, double>, const uint8_t*);
 #define MAX_PAYLOAD_SIZE 256
 
-
 /**
  * @enum Direction
  * @brief Enumerates the possible directions for motor movement.
@@ -23,22 +22,6 @@ enum Direction{
   BACKWARD,
   CLOCKWISE,
   COUNTER_CLOCKWISE
-};
-
-
-enum hand_state{
-  INITAIL_STATE,
-  CLOSING_HAND,
-  OPENIING_HAND
-};
-
-/**
- * @enum Relop
- * @brief Enumerates the possible relational operations for (*)end conditions. (* - will be explained later)
- */
-enum Relop{
-  GREATER_THAN,
-  SMALLER_THAN
 };
 
 /**
@@ -89,7 +72,6 @@ public:
   virtual ~Output() {}
 };
 
-
 class Func_of_input {
 public:
   FuncPtr func_ptr;
@@ -126,24 +108,7 @@ public:
     Serial.print("out_pin : ");
     Serial.println(out_pin);
      }
-  virtual void read_input(){}
 };
-
-// class Distance_sensor : public Sensor {
-//   public:
-//   Distance_sensor(int id, const String name, const String type,  int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
-//   void read_input() override {
-//       // Implementation for reading distance sensor
-//     }
-// };
-
-// class Light_sensor : public Sensor {
-//   public:
-//   Light_sensor(int id, const String name , const String type, int in_pin, int out_pin, Func_of_input func_of_input) : Sensor(id, name, func_of_input, in_pin, out_pin) {}
-//   void read_input() override {
-//       // Implementation for reading light sensor
-//     }
-// };
 
 /**
  * @class Motor
@@ -166,13 +131,6 @@ public:
     state.dir = dir;
     state.speed = speed;
   }
-  /**
-    * @brief Pure virtual function to set calibration for the motor.
-    * (e.g. linear manipulation performed on the input before sent to the motor)
-    */
-  virtual void set_calibration(){}
-  virtual void execute_action(int direction, int speed){}
-  virtual int read_input(){}
 };
 
 class DC_motor : public Motor {
@@ -182,9 +140,6 @@ public:
   int sense_pin;
   DC_motor(String name, String type,  int in1_pin ,  int in2_pin,  int sense_pin , int safety_threshold)
       : Motor(name, type, safety_threshold, LOW, HIGH), in1_pin(in1_pin) , in2_pin(in2_pin) , sense_pin(sense_pin){}
-  void set_calibration() override {
-        // Implementation for motor type A calibration
-  }
   void debug_print() override{
     Serial.println("--Motor--");
     Serial.print("name : ");
@@ -200,16 +155,7 @@ public:
     Serial.print("safety_threshold : ");
     Serial.println(safety_threshold);
     }
-  void execute_action(int direction, int speed) override {
-        // Implementation for motor type A command execution
-  }
-  int read_input() override {
-        // Implementation for motor type A command execution
-  }
 };
-
-
-
 
 class Received_command{
   public:
@@ -227,8 +173,7 @@ class Hand{
 public:
   std::vector<Output*> outputs;
   std::vector<Input*> inputs;
-  enum hand_state hand_state;
-  Hand():hand_state(INITAIL_STATE){}
+  Hand(){}
   void add_output(Output* output){
       outputs.push_back(output);
   }

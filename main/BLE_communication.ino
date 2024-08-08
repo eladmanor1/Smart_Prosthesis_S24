@@ -27,16 +27,6 @@ extern Received_command cmd;
 #define MANUFACTURER_NAME_CHAR_UUID "2A29"
 #define MODEL_NUMBER_CHAR_UUID "2A24"
 
-// -------------------------------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------------------------------- //
-
-
-
-// BLE Server and Characteristics
-//BLECharacteristic *batteryLevelCharacteristic;
-//BLECharacteristic *manufacturerNameCharacteristic;
-//BLECharacteristic *modelNumberCharacteristic;
 bool deviceConnected = false;
 
 // ---------------------------------------------------------------------------------------------------------- //
@@ -55,25 +45,7 @@ class MyServerCallbacks : public BLEServerCallbacks {
       pServer->startAdvertising();  // Restart advertising
     }
   };
-  /*
-  class ConfigCallbacks : public BLECharacteristicCallbacks {
-      void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
-      // Check the payload size
-      const uint8_t *dataPtr = pCharacteristic->getData();
-      size_t dataSize = pCharacteristic->getLength();
-      Serial.print("Payload size: ");
-      Serial.println(dataSize);
 
-    // Optionally print the payload data
-        //Serial.print("Payload data: ");
-        //for (size_t i = 0; i < dataSize; ++i) {
-          //  Serial.print(dataPtr[i], HEX);
-        //  Serial.print(" ");
-        //}
-        Serial.println();
-      };
-    };
-    */
     class SensorCallbacks : public BLECharacteristicCallbacks {
         void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
           if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
@@ -98,64 +70,6 @@ class MyServerCallbacks : public BLEServerCallbacks {
 // ---------------------------------------------------------------------------------------------------------- //
 
 
-
-
-
-// ------------------------------------------------------------------------------------- //
-// ---------------------------  Services Setup Functions ------------------------------- //
-// ------------------------------------------------------------------------------------- //
-
-// ---------------------- Battery Service Setup ------------------------- //
-/*
-void batteryServiceSetup(BLEServer *pServer) {
-  // Create the Battery Service
-  BLEService *batteryService = pServer->createService(BATTERY_SERVICE_UUID);
-
-  // Create the Battery Level Characteristic
-  batteryLevelCharacteristic = batteryService->createCharacteristic(
-    BATTERY_LEVEL_CHAR_UUID,
-    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-
-  batteryLevelCharacteristic->addDescriptor(new BLE2902());
-
-  // Start the Battery Service
-  batteryService->start();
-}
-
-// ---------------------- Config Service Setup ------------------------ //
-void configServiceSetup(BLEServer *pServer) {
-
-  BLEService *pConfigService = pServer->createService(HAND_CONFIG_SERVICE_UUID);
-  BLECharacteristic *pConfigOnWriteCharacteristic = pConfigService->createCharacteristic(
-    CONFIG_ON_WRITE_CHARACTERISTIC_UUID,
-    BLECharacteristic::PROPERTY_WRITE);
-  pConfigOnWriteCharacteristic->setCallbacks(new ConfigCallbacks());
-  pConfigService->start();
-}
-
-// ---------------------- Device Information Service Setup ------------------------ //
-void devInfoServiceSetup(BLEServer *pServer) {
-  BLEService *deviceInfoService = pServer->createService(DEVICE_INFO_SERVICE_UUID);
-
-  // Create the Manufacturer Name Characteristic
-  manufacturerNameCharacteristic = deviceInfoService->createCharacteristic(
-    MANUFACTURER_NAME_CHAR_UUID,
-    BLECharacteristic::PROPERTY_READ);
-
-  manufacturerNameCharacteristic->setValue("MyManufacturer");
-
-  // Create the Model Number Characteristic
-  modelNumberCharacteristic = deviceInfoService->createCharacteristic(
-    MODEL_NUMBER_CHAR_UUID,
-    BLECharacteristic::PROPERTY_READ);
-
-  modelNumberCharacteristic->setValue("ESP32_Model_1");
-
-  // Start the Device Information Service
-  deviceInfoService->start();
-}
-*/
-
 // ---------------------- Sensor Service Setup ------------------------ //
 void sensorServiceSetup(BLEServer *pServer) {
   BLEService *pSensorService = pServer->createService(SENSOR_SERVICE_UUID);
@@ -167,20 +81,15 @@ void sensorServiceSetup(BLEServer *pServer) {
 }
 
 void setServices(BLEServer *pServer) {
-  //batteryServiceSetup(pServer);
-  //configServiceSetup(pServer);
   sensorServiceSetup(pServer);
-  //devInfoServiceSetup(pServer);
 }
 
 void setAdvertizing(BLEServer *pServer) {
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
-  //BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->setMinInterval(100);
   pAdvertising->setMaxInterval(200);
   pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
   pAdvertising->setMinPreferred(0x12);
-  //pAdvertising->addServiceUUID(HAND_CONFIG_SERVICE_UUID);
   pAdvertising->addServiceUUID(SENSOR_SERVICE_UUID);
   pAdvertising->start();
   pAdvertising->setScanResponse(true);
@@ -199,9 +108,6 @@ void init_BLE() {
 
   // Start advertising
   setAdvertizing(pServer);
-
-  // // Set initial battery level
-  // batteryLevelCharacteristic->setValue((uint8_t)100);
 
   // Set GPIO2 as output (for an LED)
   pinMode(2, OUTPUT);

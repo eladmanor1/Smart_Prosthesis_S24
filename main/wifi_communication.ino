@@ -176,32 +176,6 @@ void get_command_from_web() {
   }
 }
 
-// void get_sensor_value() {
-//   if (server.method() == HTTP_POST) {
-//     if (server.hasArg("plain")) {
-//       String body = server.arg("plain");
-//       if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
-
-//         cmd.command_payload_len = body.length;
-//         cmd.is_pending = true;        
-//         for( int i=0; i < decodedLength; i++) {
-//             cmd.command_payload[i] = (uint8_t)decodedPayload[i];
-//             Serial.print("body[i]: ");
-//             Serial.println((uint8_t)body[i]);
-//         }
-//         Serial.print(" body.length(): ");
-//         Serial.println(body.length());
-//         xSemaphoreGive(xMutex_payload);
-//       }
-//         server.send(200, "text/plain", "Data received");
-//     } else {
-//       server.send(400, "text/plain", "No plain data");
-//     }
-//   } else {
-//     server.send(405, "text/plain", "Method Not Allowed");
-//   }
-// }
-
 void get_sensor_value() {
   if (server.method() == HTTP_POST) {
     if (server.hasArg("plain")) {
