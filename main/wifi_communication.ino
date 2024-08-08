@@ -4,6 +4,7 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 #include "classes.h"
+#include <Base64.h>
 
 extern Hand* hand;
 extern Received_command cmd;
@@ -165,25 +166,78 @@ void get_command_from_web() {
   }
 }
 
+// void get_sensor_value() {
+//   if (server.method() == HTTP_POST) {
+//     if (server.hasArg("plain")) {
+//       String body = server.arg("plain");
+//       if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
+
+//         cmd.command_payload_len = body.length;
+//         cmd.is_pending = true;        
+//         for( int i=0; i < decodedLength; i++) {
+//             cmd.command_payload[i] = (uint8_t)decodedPayload[i];
+//             Serial.print("body[i]: ");
+//             Serial.println((uint8_t)body[i]);
+//         }
+//         Serial.print(" body.length(): ");
+//         Serial.println(body.length());
+//         xSemaphoreGive(xMutex_payload);
+//       }
+//         server.send(200, "text/plain", "Data received");
+//     } else {
+//       server.send(400, "text/plain", "No plain data");
+//     }
+//   } else {
+//     server.send(405, "text/plain", "Method Not Allowed");
+//   }
+// }
+
 void get_sensor_value() {
   if (server.method() == HTTP_POST) {
     if (server.hasArg("plain")) {
       String body = server.arg("plain");
-      if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
-        cmd.command_payload_len = body.length();
-        cmd.is_pending = true;
-        for( int i=0; i < body.length(); i++) {
-            cmd.command_payload[i] = (uint8_t)body[i];
-            Serial.print("body[i]: ");
-            Serial.print(body[i]);
-        }
-        Serial.print(" body.length(): ");
-        Serial.println(body.length());
-        xSemaphoreGive(xMutex_payload);
+
+      // Split the received string by commas
+      int commaIndex = 0;
+      int startIndex = 0;
+      int payloadLength = 0;
+
+      // Count the number of values
+      while ((commaIndex = body.indexOf(',', startIndex)) != -1) {
+        payloadLength++;
+        startIndex = commaIndex + 1;
       }
+      // Account for the last value after the final comma
+      payloadLength++;
+
+      if (xSemaphoreTake(xMutex_payload, portMAX_DELAY)) {
+        cmd.command_payload_len = payloadLength;
+        cmd.is_pending = true;
+
+        // Extract each byte value from the string
+        startIndex = 0;
+        for (int i = 0; i < payloadLength; i++) {
+          int commaIndex = body.indexOf(',', startIndex);
+          if (commaIndex == -1) {
+            commaIndex = body.length();
+          }
+          String byteStr = body.substring(startIndex, commaIndex);
+          cmd.command_payload[i] = (uint8_t)byteStr.toInt();
+          startIndex = commaIndex + 1;
+          Serial.print("cmd.command_payload[i]: ");
+          Serial.println(cmd.command_payload[i]);
+        }
+
+        Serial.print("cmd.command_payload_len: ");
+        Serial.println(cmd.command_payload_len);
+
+        xSemaphoreGive(xMutex_payload);
         server.send(200, "text/plain", "Data received");
+      } else {
+        server.send(500, "text/plain", "Server error");
+      }
     } else {
-      server.send(400, "text/plain", "No plain data");
+      server.send(400, "text/plain", "No data available");
     }
   } else {
     server.send(405, "text/plain", "Method Not Allowed");

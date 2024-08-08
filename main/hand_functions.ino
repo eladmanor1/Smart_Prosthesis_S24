@@ -4,7 +4,6 @@
 #include <map>
 #include <vector>
 
-
 extern Hand* hand;
 extern SemaphoreHandle_t xMutex_state;
 #define FILTER_RATIO 0.85
@@ -30,7 +29,7 @@ void sensor_1_func(std::map<String, double> params, const uint8_t *payload) {
   DC_motor* finger1_dc = (DC_motor*)hand->get_output_by_name("finger1_dc");
   if (xSemaphoreTake(xMutex_state, portMAX_DELAY)){
     if(sensor_value < 10){
-      finger1_dc->set_state(FORWARD, 30, 15);
+      finger1_dc->set_state(FORWARD, 30, 15);//(dir,speed,threshold)
     }
     else {
       finger1_dc->set_state(BACKWARD, 30, 15);
@@ -58,16 +57,17 @@ void HW_execute(std::map<String , double>& currents){
         pinMode(in1_pin, OUTPUT);
         pinMode(in2_pin, OUTPUT);
         currents[motor_ptr->name] = (currents[motor_ptr->name])*FILTER_RATIO + analogRead(motor_ptr->sense_pin)*(1-FILTER_RATIO);
-        if(currents[motor_ptr->name] > motor_ptr->state.custom_threshold){
+        if(currents[motor_ptr->name] > motor_ptr->state.custom_threshold){ //polling on the currents, and check if stop is needed.
             motor_ptr->set_state(STOP);
         }
+        int speed = (int)map(motor_ptr->state.speed, 0, 100, 0, 255);
         if (motor_ptr->state.dir == FORWARD){
-          digitalWrite(in1_pin, HIGH);
+          digitalWrite(in1_pin, speed);
           digitalWrite(in2_pin, LOW);
         }
         if (motor_ptr->state.dir == BACKWARD){
           digitalWrite(in1_pin, LOW);
-          digitalWrite(in2_pin, HIGH);
+          digitalWrite(in2_pin, speed);
         }
         if (motor_ptr->state.dir == STOP){ // this is the new check_end_conditions
           digitalWrite(in1_pin, LOW);

@@ -159,7 +159,7 @@ public:
           outputRange[0] = output_min_val;
           outputRange[1] = output_max_val;
   }
-  void set_state(enum Direction dir = STOP, int custom_threshold = 0, int speed = 0){
+  void set_state(enum Direction dir = STOP, int speed = 0, int custom_threshold = 0){
     if (custom_threshold == 0)
       custom_threshold = safety_threshold;
     state.custom_threshold = min(custom_threshold, safety_threshold);
