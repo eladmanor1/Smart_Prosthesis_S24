@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <Base64.h>
 
 const char* ssid = "Smart_Prosthesis_c_elad";       
 const char* password = "your_PASSWORD";      
@@ -16,8 +17,8 @@ void setup() {
   Serial.println("Connected to WiFi");
 }
 
+uint8_t value = 0;
 void loop() {
-  uint8_t value = 0;
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(serverName);
@@ -25,8 +26,14 @@ void loop() {
     uint8_t id = 1;
     uint8_t payload[2] = {id, value};
     value+=1;
+    String payloadStr = "";
+    for (size_t i = 0; i < sizeof(payload); i++) {
+      if (i > 0) payloadStr += ",";
+      Serial.println(payload[i]);
+      payloadStr += String(payload[i]);
+    }
     http.addHeader("Content-Type", "application/octet-stream");
-    int httpResponseCode = http.POST(payload, 2);
+    int httpResponseCode = http.POST(payloadStr);
 
     if (httpResponseCode > 0) {
       String response = http.getString();
