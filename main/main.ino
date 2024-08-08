@@ -8,7 +8,6 @@
 #define STACK_SIZE 2048
 Preferences preference;
 Hand* hand;
-void check_end_conditions();
 
 // -------- globals -------------//
 SemaphoreHandle_t xMutex_state = NULL;
@@ -68,7 +67,7 @@ void HW_management(void* pvParameters){
 
 void setup() {
   Serial.begin(115200);
-  delay(10000);
+  delay(5000);
   bring_up_wifi_server();
   init_BLE();
   hand = new Hand();
