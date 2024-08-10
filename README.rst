@@ -21,7 +21,7 @@ Configuration
 *************
 
 .. figure:: ./images/configuration_diagram.png
-   :width: 60%
+   :width: 30%
 
 The configuration of the hand consists of two main parts:
 
@@ -39,7 +39,7 @@ The configuration of the hand consists of two main parts:
     .. figure:: ./images/YAML.jpeg
        :width: 30%
 
-.. _functionality:
+    .. _functionality:
 
 #. Functionality - 
     Each sensor corresponds to a specific function that defines the desired behavior of 
@@ -56,7 +56,7 @@ Operation
 *********
 
 .. figure:: ./images/operation_diagram.png
-   :width: 60%
+   :width: 40%
 
 
 After the hand is configured, the system operates with three main flows, managed by three threads:
@@ -73,51 +73,50 @@ After the hand is configured, the system operates with three main flows, managed
     for communication with the HW Management thread, which controls the motors.
 
 .. figure:: ./images/threads_communication.png
-   :width: 80%
+   :width: 100%
 
 
 Admin (user) Instructions
 #########################
 
-This section will describe:
- #. How to write a new valid configuration file (YAML file). `YAML sctucture`_
- #. How to send new configuration (YAML file) to the hand. `sending configs`_
- #. How to wtire new 'hand functions' (the hand behaviour that later assiciated with a sensor) `write hand function`_
- #. How to get data about connected sensors `connected sensors data`_
+This section covers:
+ #. Writing a New Configuration File (YAML): YAML Structure_
+ #. Sending a New Configuration (YAML) to the Hand: Sending Configs_
+ #. Writing New Hand Functions: Write Hand Function_
+ #. Getting Data About Connected Sensors: Connected Sensors Data_
 
 .. _YAML sctucture:
 
 #. YAML sctucture
-    The YAML should start with 'file type' field with value config_system. The YAML consists of 2 main parts:
-     #. Inputs (sensors) - has attributes: name, id, type and function (the function is the corrisponding hand function that was pre coded by the admin)
-     #. Outputs (motors) - has attributes: name, type, pins
-   example to such yaml file is added to this repo, under the name 'config_system_usecase.yaml. (or above: `YAML_FIGURE`_)
+    The YAML file should start with a file type field set to config_system. The YAML consists of two main parts:
+     #. Inputs (Sensors): Attributes include name, id, type, and function (the corresponding hand function pre-coded by the admin).
+     #. Outputs (Motors): Attributes include name, type, and pins.
+   An example YAML file is provided in this repository under the name `config_system_usecase.yaml` (or see `YAML_FIGURE`_ above).
 
    .. _sending configs:
 
-#. sending configs
-    After the hand (controller) will be powered on, it will serve as wifi 'hot spot', creating a small local LAN for communication with the hand.
-    To send your YAML to the hand, you should
-      #. connect to the hand wifi from you pc - search for "smart_prosthesis", enter password: "100inIOT"
-      #. open chrome and insert "192.168.4.1" (this is the controller default IP address)
-      #. a new text box will appear, paste your YAML to this textx box and click 'send'
+#. Sending Configs
+    When the hand (controller) is powered on, it acts as a Wi-Fi access point, creating a small LAN for communication. To send your YAML file:
+      #. Connect to the hand's Wi-Fi network from your PC. Look for "smart_prosthesis" and enter the password: "100inIOT".
+      #. Open a web browser and navigate to "192.168.4.1" (the default IP address of the controller).
+      #. A text box will appear; paste your YAML file or modify the default configuration and click 'Send'.
 
    .. _write hand function:
 
-#. write hand function
-    The hand functions are defined and implemented in './main/hand_functions.ino'.
-    The API for accessing the hand elements (motors/sensors etc) can be found in './main/classes.h'
-    accessing the parameters of a function (which defined in the YAML)
+#. Write A Hand Function
+    Hand functions are defined and implemented in ./main/hand_functions.ino.
+    The API for accessing hand elements (motors, sensors, etc.) can be found in ./main/classes.h.
+    Example for accessing a parameter defined in the YAML:
 
-    For example: param1: 100 (from the YAML file) write in your fuction: params["param1"]
-    (example for such functions are in './main/hand_functions.ino')
+    To access `param1: 100` (from the YAML file), use `params["param1"]` in your function. For more details, see the examples in `./main/hand_functions.ino`.
+    (For more info see the examples in './main/hand_functions.ino')
 
-    After adding a new function, add it to the map: 'func_map' defined in './main/hand_functions.ino'
+    **note: After adding a new function, add it to the `func_map` defined in `./main/hand_functions.ino`.**
 
     .. _connected sensors data:
 
-#. Connected sensors data
-    Connect to the hand wifi as described above, and access the page: '192.168.4.1/sensors_summary'
+#. Connected Sensors Data
+    Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_summary.
     
     
 
