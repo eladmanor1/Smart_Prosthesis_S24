@@ -80,12 +80,12 @@ Admin (user) Instructions
 #########################
 
 This section covers:
- #. Writing a New Configuration File (YAML): YAML Structure_
- #. Sending a New Configuration (YAML) to the Hand: Sending Configs_
- #. Writing New Hand Functions: Write Hand Function_
- #. Getting Data About Connected Sensors: Connected Sensors Data_
+ #. Writing a New Configuration File (YAML): `YAML structure`_
+ #. Sending a New Configuration (YAML) to the Hand: `sending configs`_
+ #. Writing New Hand Functions: `write hand function`_
+ #. Getting Data About Connected Sensors: `connected sensors data`_
 
-.. _YAML sctucture:
+.. _YAML structure:
 
 #. YAML sctucture
     The YAML file should start with a file type field set to config_system. The YAML consists of two main parts:
