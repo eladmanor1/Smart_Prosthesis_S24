@@ -2,8 +2,7 @@
 Smart Prosthesis
 ################
 
-
-.. contents:: Table of Contents
+.. contents:: **Table of Contents**
     :depth: 3
 
 **The project simplifies the customization and configuration of smart 
