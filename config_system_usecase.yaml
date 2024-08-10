@@ -1,65 +1,38 @@
-# file type options: {'config_system','debug_mode'}
+# file type options: {'config_system', 'debug_mode'}
 file_type: config_system
 
 # inputs type options: {'BLE_input', 'analog_input', 'digital_input'}
 # transform type options: {'linear'}
 inputs:
   - name: 'leg_pressure_sensor' # string (required)
-    id: 1 # int (between 0 to 255)
+    id: 1
     type: 'BLE_input' # string (required)
     function:
-      name: "general_leg_pressure_func1" # string (required)
+      name: 'sensor_1_func' # string (required)
       parameters:
-        param1: 100 # (double)
-        param2: 50 # (double)
-        param3: 20 # (double)
+        speed: 100
+        param2: 500
+        param3: 20
 
-  - name: 'button' # string (required)
-    id: 2 # int (between 0 to 255)
-    type: 'digital_input' # string (required for analog/digital input only)
-    pin: 2 # int (required for analog/digital input only)
-    function:
-      name: "general_button_func1" # string (required)
-      parameters:
-        param1: 7 # (double)
-
-
-# --- do we want to let the admin define itself the "motors"(output receivers)? , in this way we support general system,
-# --- output receiver types: for example: {'DC_motor','servo_motor' ,'stepper_motor , 'led','RGB'} , but actually it can be anything, defined by the user's need
 outputs:
-  - name: 'finger_1' # string (required)
+  - name: 'finger1_dc' # string (required)
     type: 'DC_motor' # string (required)
     pins:
-      - type: 'speed' # string (required)
-        pin_number: 4 # int (required)
-      - type: 'direction' # string (required)
-        pin_number: 5 # int (required)
-      - type: 'current' # string (required)
-        pin_number: 12 # int (required)
+      - type: 'in1_pin' # string (required)
+        pin_number: 19 # int (required)
+      - type: 'in2_pin' # string (required)
+        pin_number: 21 # int (required)
+      - type: 'sense_pin' # string (required)
+        pin_number: 34 # int (required)
+    safety_threshold: 20
 
-  - name: 'finger_2' # string (required)
+  - name: 'finger2_dc' # string (required)
     type: 'DC_motor' # string (required)
     pins:
-      - type: 'speed' # string (required)
-        pin_number: 6 # int (required)
-      - type: 'direction' # string (required)
-        pin_number: 7 # int (required)
-      - type: 'current' # string (required)
-        pin_number: 13 # int (required)
-
-  - name: 'wrist' # string (required)
-    type: 'servo_motor' # string (required)
-    pins:
-      - type: 'speed' # string (required)
-        pin_number: 8 # int (required)
-      - type: 'direction' # string (required)
-        pin_number: 9 # int (required)
-      - type: 'current' # string (required)
-        pin_number: 14 # int (required)
-
-  - name: 'led_1' # string (required)
-    type: 'led'
-    usage: 'power_indicator'
-    pins:
-      - type: 'red_light' # string (required)
-        pin_number: 2 # int (required)
+      - type: 'in1_pin' # string (required)
+        pin_number: 23 # int (required)
+      - type: 'in2_pin' # string (required)
+        pin_number: 22 # int (required)
+      - type: 'sense_pin' # string (required)
+        pin_number: 35 # int (required)
+    safety_threshold: 20
