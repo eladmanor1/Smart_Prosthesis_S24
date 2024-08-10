@@ -9,6 +9,7 @@
 #include <String>
 #include <map>
 
+// Pointer function that receives a map between strings and doubles (used for fucntion params) and uint8_t (used for payload).
 typedef void (*FuncPtr)(std::map<String, double>, const uint8_t*);
 #define MAX_PAYLOAD_SIZE 256
 
@@ -38,7 +39,7 @@ public:
 
 /**
  * @class input
- * @brief Abstract base class for system elements that can serve as inputs. (motors / sensors)
+ * @brief Abstract base class for system elements that can serve as inputs. (motors current / sensors)
  */
 class Input {
 public:
@@ -57,6 +58,11 @@ public:
   virtual ~Input() {}
 };
 
+
+/**
+ * @class output
+ * @brief Abstract base class for system elements that can serve as outputs. (motors)
+ */
 class Output {
 public:
   String name;
@@ -72,6 +78,10 @@ public:
   virtual ~Output() {}
 };
 
+/**
+ * @class Func_of_input
+ * @brief class to store the function ptr and the corresponding params.
+ */
 class Func_of_input {
 public:
   FuncPtr func_ptr;
@@ -133,6 +143,10 @@ public:
   }
 };
 
+/**
+ * @class Motor
+ * @brief class for DC_motors that has two pins used to activate the motor (in_pins) and one to sense the current (sense_pin)
+ */
 class DC_motor : public Motor {
 public:
   int in1_pin;
@@ -157,6 +171,10 @@ public:
     }
 };
 
+/**
+ * @class Received_command
+ * @brief class to store the received command payload, length and a flag that indicates if a new command is pending.
+ */
 class Received_command{
   public:
     uint8_t command_payload[MAX_PAYLOAD_SIZE];
