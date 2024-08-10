@@ -33,6 +33,8 @@ The configuration of the hand consists of two main parts:
     the next time the controller is launched.
 
     Example for such YAML file:
+
+    .. _YAML_FIGURE:
    
     .. figure:: ./images/YAML.jpeg
        :width: 30%
@@ -73,10 +75,58 @@ After the hand is configured, the system operates with three main flows, managed
 .. figure:: ./images/threads_communication.png
    :width: 80%
 
+
+Admin (user) Instructions
+#########################
+
+This section will describe:
+ #. How to write a new valid configuration file (YAML file). `YAML sctucture`_
+ #. How to send new configuration (YAML file) to the hand. `sending configs`_
+ #. How to wtire new 'hand functions' (the hand behaviour that later assiciated with a sensor) `write hand function`_
+ #. How to get data about connected sensors `connected sensors data`_
+
+.. _YAML sctucture:
+
+#. YAML sctucture
+    The YAML should start with 'file type' field with value config_system. The YAML consists of 2 main parts:
+     #. Inputs (sensors) - has attributes: name, id, type and function (the function is the corrisponding hand function that was pre coded by the admin)
+     #. Outputs (motors) - has attributes: name, type, pins
+   example to such yaml file is added to this repo, under the name 'config_system_usecase.yaml. (or above: `YAML_FIGURE`_)
+
+   .. _sending configs:
+
+#. sending configs
+    After the hand (controller) will be powered on, it will serve as wifi 'hot spot', creating a small local LAN for communication with the hand.
+    To send your YAML to the hand, you should
+      #. connect to the hand wifi from you pc - search for "smart_prosthesis", enter password: "100inIOT"
+      #. open chrome and insert "192.168.4.1" (this is the controller default IP address)
+      #. a new text box will appear, paste your YAML to this textx box and click 'send'
+
+   .. _write hand function:
+
+#. write hand function
+    The hand functions are defined and implemented in './main/hand_functions.ino'.
+    The API for accessing the hand elements (motors/sensors etc) can be found in './main/classes.h'
+    accessing the parameters of a function (which defined in the YAML)
+
+    For example: param1: 100 (from the YAML file) write in your fuction: params["param1"]
+    (example for such functions are in './main/hand_functions.ino')
+
+    After adding a new function, add it to the map: 'func_map' defined in './main/hand_functions.ino'
+
+    .. _connected sensors data:
+
+#. Connected sensors data
+    Connect to the hand wifi as described above, and access the page: '192.168.4.1/sensors_summary'
+    
+    
+
+
    
-   
-   `functionality`_
-:ref:`functionality <functionality>`:
+
+
+
+
 
 
 .. sectnum::
