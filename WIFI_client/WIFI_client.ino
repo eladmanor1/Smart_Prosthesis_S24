@@ -2,8 +2,8 @@
 #include <HTTPClient.h>
 #include <Base64.h>
 
-const char* ssid = "Smart_Prosthesis_c_elad";       
-const char* password = "your_PASSWORD";
+const char* ssid = "Smart_Prosthesis";       
+const char* password = "100inIOT";
 // The default IP within the access point to communicate with the hand is 192.168.4.1  
 const char* serverName = "http://192.168.4.1/sensor_data"; 
 

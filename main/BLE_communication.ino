@@ -15,18 +15,8 @@ extern volatile bool is_semaphore_being_deleted;
 // -------------------------------------------------------------------------------------------------- //
 
 //  ------------- UUIDs  -----------  //
-#define BATTERY_SERVICE_UUID "180F"
-#define BATTERY_LEVEL_CHAR_UUID "2A19"
-
-#define HAND_CONFIG_SERVICE_UUID "e0198000-7544-42c1-0000-b24344b6aa70"
-#define CONFIG_ON_WRITE_CHARACTERISTIC_UUID "e0198000-7544-42c1-0001-b24344b6aa70"
-
 #define SENSOR_SERVICE_UUID "e0198002-7544-42c1-0000-b24344b6aa70"
 #define SENSOR_ON_WRITE_CHARACTERISTIC_UUID "e0198002-7544-42c1-0001-b24344b6aa70"
-
-#define DEVICE_INFO_SERVICE_UUID "180A"
-#define MANUFACTURER_NAME_CHAR_UUID "2A29"
-#define MODEL_NUMBER_CHAR_UUID "2A24"
 
 bool deviceConnected = false;
 
@@ -98,7 +88,7 @@ void setAdvertizing(BLEServer *pServer) {
 }
 
 void init_BLE() {
-  BLEDevice::init("SMART_PROSTHESIS_elad");
+  BLEDevice::init("SMART_PROSTHESIS");
 
   // Create the BLE Server
   BLEServer *pServer = BLEDevice::createServer();
