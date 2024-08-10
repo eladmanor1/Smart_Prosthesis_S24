@@ -9,6 +9,7 @@
 void process_payload_and_execute_command(const uint8_t* command_payload);
 extern SemaphoreHandle_t xMutex_payload;
 extern Received_command cmd;
+extern volatile bool is_semaphore_being_deleted;
 // -------------------------------------------------------------------------------------------------- //
 // ------------------------------------------ SYSTEM CONSTS  ---------------------------------------- //
 // -------------------------------------------------------------------------------------------------- //
@@ -48,7 +49,7 @@ class MyServerCallbacks : public BLEServerCallbacks {
 
     class SensorCallbacks : public BLECharacteristicCallbacks {
         void onWrite(BLECharacteristic *pCharacteristic) {  //execute one movement from the 'live control' or from the 'movement editing'
-          if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
+          if(!is_semaphore_being_deleted && xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
             cmd.command_payload_len = pCharacteristic->getLength();
             Serial.print("Payload size: ");
             Serial.println(cmd.command_payload_len);

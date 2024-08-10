@@ -12,6 +12,7 @@ Hand* hand;
 // -------- globals -------------//
 SemaphoreHandle_t xMutex_state = NULL;
 SemaphoreHandle_t xMutex_payload = NULL;
+volatile bool is_semaphore_being_deleted = false; // Flag to indicate deletion
 Received_command cmd;
 // ------------------------------------ //
 
