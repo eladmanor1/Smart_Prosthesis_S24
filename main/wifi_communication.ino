@@ -42,7 +42,6 @@ void send_configs_page() {
     "<h1>Smart Prosthesis Configurations</h1>"
     "<form action=\"/submit\" method=\"post\">"
     "Enter your configs (YAML): <br><textarea name=\"textbox\" rows=\"20\" cols=\"50\">"
-    "# file type options: {'config_system','debug_mode'}\n"
     "file_type: config_system\n"
     "\n"
     "# inputs type options: {'BLE_input', 'analog_input', 'digital_input'}\n"

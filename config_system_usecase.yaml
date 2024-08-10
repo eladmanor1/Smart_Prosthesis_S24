@@ -1,4 +1,3 @@
-# file type options: {'config_system', 'debug_mode'}
 file_type: config_system
 
 # inputs type options: {'BLE_input', 'analog_input', 'digital_input'}
