@@ -2,6 +2,10 @@
 Smart Prosthesis
 ################
 
+
+.. contents:: Table of Contents
+    :depth: 3
+
 **The project simplifies the customization and configuration of smart 
 prosthetic hands for diverse user’s needs. Provides a platform that enables 
 the customization of smart prosthetic hands.**
@@ -82,7 +86,6 @@ Admin (user) Instructions
 This section covers:
  #. Writing a New Configuration File (YAML): `YAML structure`_
  #. Sending a New Configuration (YAML) to the Hand: `sending configs`_
- #. Writing New Hand Functions: `write hand function`_
  #. Getting Data About Connected Sensors: `connected sensors data`_
 
 .. _YAML structure:
@@ -101,7 +104,23 @@ This section covers:
       #. Open a web browser and navigate to "192.168.4.1" (the default IP address of the controller).
       #. A text box will appear; paste your YAML file or modify the default configuration and click 'Send'.
 
-   .. _write hand function:
+    .. _connected sensors data:
+
+#. Connected Sensors Data
+    Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_summary.
+    
+
+Developer Instructions
+#######################
+
+This section covers:
+ #. Writing New Hand Functions: `write hand function`_
+ #. `Sending Data Via Wi-Fi`_:
+ #. `Sending Data Via BLE`_:
+ #. `Additional notes`_:
+
+
+.. _write hand function:
 
 #. Write A Hand Function
     Hand functions are defined and implemented in ./main/hand_functions.ino.
@@ -116,18 +135,26 @@ This section covers:
     .. figure:: ./images/hand_functions_map.jpeg
        :width: 30% 
 
-    .. _connected sensors data:
+    .. _Sending Data Via Wi-Fi:
 
-#. Connected Sensors Data
-    Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_summary.
-    
-    
+#. Sending Data Via Wi-Fi
+    There are 2 ways to send data via wifi:
+      #. Reglular client - wifi client that connects to the hand controller LAN, see wifi client example in './WIFI_client/WIFI_client.ino'
+         **note** the controller expects to get the payload as a string, which the first byte is the sensor id, followed by the values. 
+         we supply the function for converting thep payload from uint8_t to string and sending it to the wifi server (controller) - 'send_sensor_values' 
+         at './WIFI_client/WIFI_client.ino'.
+      #. Web page - for easier bebug, we support sending a simulated sensor values through a web page. Connect to the hand wifi and enter
+         '192.168.4.1/send_command'
 
+    .. _Sending Data Via BLE:
+
+#. Sending Data Via BLE
+    We support sending the data via BLE terminal (for example via the BLE scanner app). The device name on the BLE is 'smart_prosthesis'. The uuid for sending the
+    payload is 'e0198002-7544-42c1-0001-b24344b6aa70'
+    **note** Due to BLE limitations, we currently support sending payloads up to 20 bytes.
 
    
-
-
-
+    
 
 
 
