@@ -113,6 +113,9 @@ This section covers:
 
     **note: After adding a new function, add it to the `func_map` defined in `./main/hand_functions.ino`.**
 
+    .. figure:: ./images/hand_functions_map.jpeg
+       :width: 30% 
+
     .. _connected sensors data:
 
 #. Connected Sensors Data
