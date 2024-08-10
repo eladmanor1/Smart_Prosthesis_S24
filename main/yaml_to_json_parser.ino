@@ -6,8 +6,12 @@
 #include <string>
 #include <vector>
 #include "hand_functions.ino"
+#define STACK_SIZE 2048
 extern Hand* hand;
-
+extern TaskHandle_t hw_Management_Handle;
+extern TaskHandle_t process_Logic_Handle;
+void HW_management(void* pvParameters);
+void process_payload_and_manage_logic(void* pvParameters);
 void store_configs();
 
 void config_system(JsonDocument doc) {
@@ -78,6 +82,23 @@ void config_system(JsonDocument doc) {
   hand->debug_print();
 }
 
+void reset_before_new_configs(){
+  for(Output* output : hand->outputs){
+    if(output->type == "DC_motor"){
+      DC_motor* motor_ptr = (DC_motor*)output;
+      motor_ptr->set_state(STOP);
+    } 
+  }
+  vTaskDelay(1000);    
+  if (hw_Management_Handle != NULL) {
+      vTaskDelete(hw_Management_Handle);
+  }
+  if (process_Logic_Handle != NULL) {
+      vTaskDelete(process_Logic_Handle);
+  } 
+}
+
+
 void yaml_to_json(const char *yaml_str) {
   JsonDocument doc;
   DeserializationError error = deserializeYml(doc, yaml_str);
@@ -90,9 +111,12 @@ void yaml_to_json(const char *yaml_str) {
   Serial.print("file type: ");
   Serial.println(file_type);
   if (strcmp(file_type, "config_system") == 0) {
+    reset_before_new_configs();
     hand->clear_hand();
     config_system(doc);
     store_configs();
+    xTaskCreate(HW_management, "HW_management", STACK_SIZE ,NULL ,1, &hw_Management_Handle);
+    xTaskCreate(process_payload_and_manage_logic , "process_payload_and_manage_logic", STACK_SIZE ,NULL ,1, &process_Logic_Handle);
   } else {
     Serial.print("Received unknown file type: ");
     Serial.println(file_type);

@@ -9,6 +9,8 @@
 extern Hand* hand;
 extern Received_command cmd;
 extern SemaphoreHandle_t xMutex_payload;
+
+
 void process_payload_and_execute_command(const uint8_t* command_payload);
 void yaml_to_json(const char *yaml_str);
 
@@ -85,12 +87,12 @@ void send_configs_page() {
   );
 }
 
-
 void get_configs_from_web() {
   if (server.method() == HTTP_POST) {
     // Get the multi-line text box content
     yaml_configs = server.arg("textbox");
     yaml_to_json(yaml_configs.c_str());
+
     // Send response back to the client
     server.send(200, "text/html", "<html><body><h1>Text received</h1></body></html>");
 

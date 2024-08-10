@@ -65,6 +65,9 @@ void HW_management(void* pvParameters){
   }
 }
 
+TaskHandle_t hw_Management_Handle = NULL;
+TaskHandle_t process_Logic_Handle = NULL;
+
 void setup() {
   Serial.begin(115200);
   delay(5000);
@@ -74,8 +77,8 @@ void setup() {
   load_configs();
   xMutex_state = xSemaphoreCreateMutex();
   xMutex_payload = xSemaphoreCreateMutex();
-  xTaskCreate(HW_management, "HW_management", STACK_SIZE ,NULL ,1, NULL);
-  xTaskCreate(process_payload_and_manage_logic , "process_payload_and_manage_logic", STACK_SIZE ,NULL ,1, NULL);
+  xTaskCreate(HW_management, "HW_management", STACK_SIZE ,NULL ,1, &hw_Management_Handle);
+  xTaskCreate(process_payload_and_manage_logic , "process_payload_and_manage_logic", STACK_SIZE ,NULL ,1, &process_Logic_Handle);
 }
 
 void loop() {
