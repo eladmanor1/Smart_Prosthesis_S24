@@ -27,7 +27,7 @@ The configuration of the hand consists of two main parts:
 
 #. The system either loads from memory or receives from the user a YAML file
     that specifies the system components. This allows for full flexibility in modifying the hand structure in the future.
-    The YAML file also associates sensors with their target functionalities (see :ref:`Functionality<functionality_hook>`).
+    The YAML file also associates sensors with their target functionalities (see `functionality`_).
 
     After receiving a new configuration file from the user, it will be saved to memory and loaded
     the next time the controller is launched.
@@ -37,7 +37,7 @@ The configuration of the hand consists of two main parts:
     .. figure:: ./images/YAML.jpeg
        :width: 30%
 
-.. _functionality_hook:
+.. _functionality:
 
 #. Functionality - 
     Each sensor corresponds to a specific function that defines the desired behavior of 
@@ -56,8 +56,6 @@ Operation
 .. figure:: ./images/operation_diagram.png
    :width: 60%
 
-.. figure:: ./images/threads_communication.png
-   :width: 80%
 
 After the hand is configured, the system operates with three main flows, managed by three threads:
 
@@ -72,10 +70,13 @@ After the hand is configured, the system operates with three main flows, managed
     This thread is responsible for parsing payloads received from sensors and triggering the relevant hand functions. These functions update the motor states used 
     for communication with the HW Management thread, which controls the motors.
 
+.. figure:: ./images/threads_communication.png
+   :width: 80%
 
    
    
-   
+   `functionality`_
+:ref:`functionality <functionality>`:
 
 
 .. sectnum::
