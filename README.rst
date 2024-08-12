@@ -84,7 +84,7 @@ Admin (user) Instructions
 This section covers:
  #. Writing a New Configuration File (YAML): `YAML structure`_
  #. Sending a New Configuration (YAML) to the Hand: `sending configs`_
- #. Getting Data About Connected Sensors: `connected sensors data`_
+ #. Getting Data About Connected Sensors: `sensors activity`_
 
 .. _YAML structure:
 
@@ -106,12 +106,12 @@ When the hand (controller) is powered on, it acts as a Wi-Fi access point, creat
   #. Open a web browser and navigate to "192.168.4.1" (the default IP address of the controller).
   #. A text box will appear; paste your YAML file or modify the default configuration and click 'Send'.
 
-.. _connected sensors data:
+.. _sensors activity:
 
-Connected Sensors Data
-======================
+Sensors Activity
+================
 
-    Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_summary.
+    Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_activity.
     
 
 Developer Instructions
