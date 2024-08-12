@@ -1,11 +1,10 @@
 file_type: config_system
 
-# inputs type options: {'BLE_input', 'analog_input', 'digital_input'}
-# transform type options: {'linear'}
+# inputs type options: {'BLE_input', 'Wifi_input'}
 inputs:
   - name: 'leg_pressure_sensor' # string (required)
     id: 1
-    type: 'BLE_input' # string (required)
+    type: 'Wifi_input' # string (required)
     function:
       name: 'sensor_1_func' # string (required)
       parameters:
