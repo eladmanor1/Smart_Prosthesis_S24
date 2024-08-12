@@ -125,7 +125,6 @@ This section covers:
  #. Writing New Hand Functions: `write hand function`_
  #. `Sending Data Via Wi-Fi`_:
  #. `Sending Data Via BLE`_:
- #. `Additional notes`_:
 
 
 .. _write hand function:
@@ -182,10 +181,6 @@ Sending Data Via BLE
            :width: 100%
     
 
-.. _Additional notes:
-    
-Additional Notes:
-================
 
 
 
