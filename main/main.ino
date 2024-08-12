@@ -16,7 +16,16 @@ volatile bool is_semaphore_being_deleted = false; // Flag to indicate deletion
 Received_command cmd;
 // ------------------------------------ //
 
-
+/**
+ * @brief Processes sensor payloads and manages logic based on sensor commands.
+ * 
+ * This function continuously checks for pending commands in the `cmd` object. When a pending command is detected,
+ * it retrieves the sensor by ID, updates the sensor's timestamp, executes the associated function with the command payload,
+ * and then marks the command as processed. The function uses a semaphore to ensure mutual exclusion while accessing 
+ * the shared `cmd` object.
+ * 
+ * @param pvParameters Unused parameter.
+ */
 void process_payload_and_manage_logic(void* pvParameters) {
   while(1){
     if(xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
@@ -43,6 +52,17 @@ void process_payload_and_manage_logic(void* pvParameters) {
   }
 }
 
+
+
+/**
+ * @brief Manages hardware states and executes motor actions based on current readings.
+ * 
+ * This function periodically reads current values from DC motors and filters them using a specified ratio. It then calls 
+ * `HW_execute` to execute the appropriate actions based on the current readings. The function initializes a map of currents 
+ * for the motors and updates them in a loop. The loop includes a short delay to balance processing.
+ * 
+ * @param pvParameters Unused parameter.
+ */
 void HW_management(void* pvParameters){
   std::map<String , double> currents;
   for (Output* output : hand->outputs){
@@ -69,6 +89,14 @@ void HW_management(void* pvParameters){
 TaskHandle_t hw_Management_Handle = NULL;
 TaskHandle_t process_Logic_Handle = NULL;
 
+
+/**
+ * @brief Initializes system components and creates tasks for hardware management and logic processing.
+ * 
+ * The `setup` function sets up the serial communication, initializes the Wi-Fi server and BLE, creates a `Hand` instance,
+ * loads configuration files, creates semaphores for mutual exclusion, and creates tasks for `HW_management` and
+ * `process_payload_and_manage_logic` functions.
+ */
 void setup() {
   Serial.begin(115200);
   delay(5000);
@@ -82,6 +110,12 @@ void setup() {
   xTaskCreate(process_payload_and_manage_logic , "process_payload_and_manage_logic", STACK_SIZE ,NULL ,1, &process_Logic_Handle);
 }
 
+/**
+ * @brief Main loop function that handles client connections and toggles an LED.
+ * 
+ * In the `loop` function, an LED connected to pin 2 is toggled based on the system's uptime. It also continuously
+ * handles client requests via the `server` object.
+ */
 void loop() {
   digitalWrite(2, millis() / 1000 % 2 == 0 ? HIGH : LOW);
   server.handleClient();

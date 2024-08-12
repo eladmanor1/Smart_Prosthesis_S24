@@ -6,7 +6,6 @@
 #include <BLE2902.h>
 #include <classes.h>
 
-void process_payload_and_execute_command(const uint8_t* command_payload);
 extern SemaphoreHandle_t xMutex_payload;
 extern Received_command cmd;
 extern volatile bool is_semaphore_being_deleted;
@@ -62,6 +61,16 @@ class MyServerCallbacks : public BLEServerCallbacks {
 
 
 // ---------------------- Sensor Service Setup ------------------------ //
+
+
+/**
+ * @brief Sets up the BLE sensor service and its characteristics.
+ * 
+ * This function initializes a BLE service for sensors and creates a writable characteristic for receiving sensor commands.
+ * The characteristic's callback is set to handle write operations, which will invoke `SensorCallbacks` for processing payloads.
+ * 
+ * @param pServer Pointer to the BLE server instance.
+ */
 void sensorServiceSetup(BLEServer *pServer) {
   BLEService *pSensorService = pServer->createService(SENSOR_SERVICE_UUID);
   BLECharacteristic *pSensorOnWriteCharacteristic = pSensorService->createCharacteristic(
@@ -71,10 +80,28 @@ void sensorServiceSetup(BLEServer *pServer) {
   pSensorService->start();
 }
 
+
+/**
+ * @brief Configures BLE services on the BLE server.
+ * 
+ * This function sets up the necessary services for the BLE server by calling `sensorServiceSetup`. It ensures that all required
+ * services are created and ready to handle BLE communication.
+ * 
+ * @param pServer Pointer to the BLE server instance.
+ */
 void setServices(BLEServer *pServer) {
   sensorServiceSetup(pServer);
 }
 
+
+/**
+ * @brief Configures and starts BLE advertising.
+ * 
+ * This function sets up the BLE advertising parameters and starts advertising the BLE service. It includes setting intervals,
+ * preferred parameters, and adding service UUIDs to the advertising packet. It also handles scan response configuration.
+ * 
+ * @param pServer Pointer to the BLE server instance.
+ */
 void setAdvertizing(BLEServer *pServer) {
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
   pAdvertising->setMinInterval(100);
@@ -87,6 +114,13 @@ void setAdvertizing(BLEServer *pServer) {
   Serial.println("BLE advertising started!");
 }
 
+
+/**
+ * @brief Initializes the BLE stack, sets up services, and starts advertising.
+ * 
+ * This function initializes the BLE stack with a specific device name, creates a BLE server, sets up services and advertising,
+ * and configures a GPIO pin for LED output. It prepares the BLE communication for use in the smart prosthesis system.
+ */
 void init_BLE() {
   BLEDevice::init("SMART_PROSTHESIS");
 

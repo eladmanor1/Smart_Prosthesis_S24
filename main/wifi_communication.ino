@@ -23,6 +23,13 @@ WebServer server(80);
 String yaml_configs;  // Global variable to store the configs
 const char* command;       // Global variable to store the command
 
+
+/**
+ * @brief Serves the HTML page for configuring the system.
+ * 
+ * This function serves an HTML page with a multi-line text box where users can input YAML configurations for the system.
+ * It provides styling for the page and a submit button to send the configuration data.
+ */
 void send_configs_page() {
   // Serve the HTML page with a multi-line text box, a send button, and some styling
   server.send(200, "text/html",
@@ -85,6 +92,12 @@ void send_configs_page() {
   );
 }
 
+/**
+ * @brief Handles the POST request to receive YAML configurations from the web page.
+ * 
+ * This function processes POST requests sent to the server, retrieves the YAML configurations from the request, converts them to JSON,
+ * and updates the system configuration accordingly. It sends a response back to the client indicating success or failure.
+ */
 void get_configs_from_web() {
   if (server.method() == HTTP_POST) {
     // Get the multi-line text box content
@@ -99,7 +112,12 @@ void get_configs_from_web() {
   }
 }
 
-
+/**
+ * @brief Serves the HTML page displaying the activity of connected sensors.
+ * 
+ * This function generates an HTML page that lists all connected sensors and their last activity time. It provides styling for the page
+ * and shows the status of each sensor.
+ */
 void send_sensors_page() {
   String html = "<html>"
                 "<head>"
@@ -133,6 +151,12 @@ void send_sensors_page() {
   server.send(200, "text/html", html);
 }
 
+/**
+ * @brief Serves the HTML page for sending commands to the system.
+ * 
+ * This function serves an HTML page with input boxes where users can enter an ID and sensor value to send a command to the system.
+ * It provides styling for the page and a submit button to send the command.
+ */
 void send_command_page() {
   // Serve the HTML page with input boxes for id and sensor_value
   server.send(200, "text/html",
@@ -159,6 +183,13 @@ void send_command_page() {
   );
 }
 
+
+/**
+ * @brief Handles the POST request to receive a command from the web page.
+ * 
+ * This function processes POST requests sent to the server, retrieves the command ID and sensor value from the request, and updates
+ * the command payload. It sends a response back to the client indicating success or failure.
+ */
 void get_command_from_web() {
   if (server.method() == HTTP_POST) {
     if(!is_semaphore_being_deleted && xSemaphoreTake(xMutex_payload, portMAX_DELAY)){
@@ -176,6 +207,12 @@ void get_command_from_web() {
   }
 }
 
+/**
+ * @brief Handles the POST request to receive sensor data from the web page.
+ * 
+ * This function processes POST requests sent to the server containing comma-separated sensor values. It parses the values, updates
+ * the command payload, and sends a response back to the client indicating success or failure.
+ */
 void get_sensor_value() {
   if (server.method() == HTTP_POST) {
     if (server.hasArg("plain")) {
@@ -228,7 +265,12 @@ void get_sensor_value() {
   }
 }
 
-
+/**
+ * @brief Initializes the Wi-Fi access point and sets up the web server.
+ * 
+ * This function sets up the Wi-Fi in Access Point mode, starts the web server, and configures the server to handle various routes
+ * for serving web pages and processing requests related to configurations, commands, and sensor data.
+ */
 void bring_up_wifi_server() {
   Serial.println("Access Point started");
   // Set up Wi-Fi in Access Point mode

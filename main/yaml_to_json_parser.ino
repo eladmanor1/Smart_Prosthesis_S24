@@ -15,6 +15,14 @@ void HW_management(void* pvParameters);
 void process_payload_and_manage_logic(void* pvParameters);
 void store_configs();
 
+/**
+ * @brief Configures the system based on the provided JSON document.
+ * 
+ * This function parses the JSON document to extract sensor and output configurations. It creates and initializes `Sensor` and `DC_motor`
+ * objects based on the configurations and adds them to the `Hand` object. It also prints the debug information of the `Hand` object.
+ * 
+ * @param doc A `JsonDocument` containing the system configuration in JSON format.
+ */
 void config_system(JsonDocument doc) {
   JsonArray input_list = doc["inputs"].as<JsonArray>();
 
@@ -83,6 +91,12 @@ void config_system(JsonDocument doc) {
   hand->debug_print();
 }
 
+/**
+ * @brief Resets the system before applying new configurations.
+ * 
+ * This function stops all active DC motors, deletes any existing tasks related to hardware management and logic processing, and
+ * deletes existing semaphores. It sets a flag indicating that semaphores are being deleted.
+ */
 void reset_before_new_configs(){
   for(Output* output : hand->outputs){
     if(output->type == "DC_motor"){
@@ -102,6 +116,17 @@ void reset_before_new_configs(){
   vSemaphoreDelete(xMutex_payload);
 }
 
+/**
+ * @brief Converts a YAML string to JSON and configures the system accordingly.
+ * 
+ * This function parses the provided YAML string into a JSON document. If the file type is `config_system`, it clears the current configuration,
+ * applies the new configuration using `config_system`, and stores the updated
+ * configurations. If requested, it calls `reset_before_new_configs`
+ * to reset the system, recreates semaphores and tasks for hardware management and logic processing.
+ * 
+ * @param yaml_str A pointer to a YAML formatted string containing the configuration.
+ * @param recreate_resources A boolean flag indicating whether to recreate system resources (e.g., semaphores and tasks) after applying new configurations.
+ */
 void yaml_to_json(const char *yaml_str, bool recreate_resources) {
   JsonDocument doc;
   DeserializationError error = deserializeYml(doc, yaml_str);
