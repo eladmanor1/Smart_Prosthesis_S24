@@ -168,17 +168,37 @@ An image of the web page for sending commands:
 Sending Data Via BLE
 ====================
 
-We support sending data via a BLE terminal (e.g., the BLE Scanner app). The device name for the BLE is 'smart_prosthesis'.
-The UUID for sending the payload is 'e0198002-7544-42c1-0001-b24344b6aa70'.
+.. list-table:: 
 
-**Note:** Due to BLE limitations, we currently support sending payloads up to 20 bytes.
+    * - We support sending data via a BLE terminal (e.g., the BLE Scanner app). The device name for the BLE is 'smart_prosthesis'.
+        The UUID for sending the payload is 'e0198002-7544-42c1-0001-b24344b6aa70'.
+
+        **Note:** Due to BLE limitations, we currently support sending payloads up to 20 bytes.
+
+      - .. figure:: ./images/BLE_app_1.jpeg
+           :width: 100%
+
+      - .. figure:: ./images/BLE_app_2.jpeg
+           :width: 100%
+    
 
 .. _Additional notes:
     
 Additional Notes:
 ================
-    
-    
+
+
+
+
+
+
+
+Poster
+######
+
+.. figure:: ./images/poster.png
+   :width: 100%
+
      
 
 .. sectnum::
