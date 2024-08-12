@@ -69,6 +69,8 @@ After the hand is configured, the system operates with three main flows, managed
     This thread listens for asynchronous interrupts. once caught an interrupt - creates a new command object which allows the communication with the third thread.
     A new command is labeled with a "pending" flag to be executed by the third thread (described below). 
 #. HW management:
+    **This is the only thread that writes to and reads from HW.**
+
     Commands received from sensors are translated into basic motor actions and stored as the current "state." Each state has an "end condition" (i.e., the current
     value sensed by the motor). The HW Management thread iterates through all motors, checks their states, and directs the motors to start an action (with custom 
     direction and speed), stop an action, or make no change to their operation.
