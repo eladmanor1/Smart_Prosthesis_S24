@@ -112,7 +112,7 @@ void send_sensors_page() {
                 "</style>"
                 "</head>"
                 "<body>"
-                "<h1>Array Content Display</h1>"
+                "<h1> Sensors Activity </h1>"
                 "<div class='content'>";
   
   for (Input* sensor_ptr : hand->inputs) {
@@ -242,7 +242,7 @@ void bring_up_wifi_server() {
   server.on("/submit", HTTP_POST, get_configs_from_web);
   server.on("/send_command", HTTP_GET, send_command_page);
   server.on("/send_command", HTTP_POST, get_command_from_web);
-  server.on("/sensors_summary", HTTP_GET, send_sensors_page);
+  server.on("/sensors_activity", HTTP_GET, send_sensors_page);
   server.on("/sensor_data", HTTP_POST, get_sensor_value);
   server.begin();
   Serial.println("HTTP server started");
