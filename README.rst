@@ -2,12 +2,12 @@
 Smart Prosthesis
 ################
 
-.. contents:: **Table of Contents**
-    :depth: 3
-
 **The project simplifies the customization and configuration of smart 
 prosthetic hands for diverse user’s needs. Provides a platform that enables 
 the customization of smart prosthetic hands.**
+
+.. contents:: **Table of Contents**
+    :depth: 3
 
 overview
 ########
@@ -78,7 +78,6 @@ After the hand is configured, the system operates with three main flows, managed
 .. figure:: ./images/threads_communication.png
    :width: 100%
 
-
 Admin (user) Instructions
 #########################
 
@@ -89,23 +88,29 @@ This section covers:
 
 .. _YAML structure:
 
-#. YAML sctucture
-    The YAML file should start with a file type field set to config_system. The YAML consists of two main parts:
-     #. Inputs (Sensors): Attributes include name, id, type, and function (the corresponding hand function pre-coded by the admin).
-     #. Outputs (Motors): Attributes include name, type, and pins.
-   An example YAML file is provided in this repository under the name `config_system_usecase.yaml` (or see `YAML_FIGURE`_ above).
+YAML sctucture
+==============
 
-   .. _sending configs:
+The YAML file should start with a file type field set to config_system. The YAML consists of two main parts:
+ #. Inputs (Sensors): Attributes include name, id, type, and function (the corresponding hand function pre-coded by the admin).
+ #. Outputs (Motors): Attributes include name, type, and pins.
+An example YAML file is provided in this repository under the name `config_system_usecase.yaml` (or see `YAML_FIGURE`_ above).
 
-#. Sending Configs
-    When the hand (controller) is powered on, it acts as a Wi-Fi access point, creating a small LAN for communication. To send your YAML file:
-      #. Connect to the hand's Wi-Fi network from your PC. Look for "smart_prosthesis" and enter the password: "100inIOT".
-      #. Open a web browser and navigate to "192.168.4.1" (the default IP address of the controller).
-      #. A text box will appear; paste your YAML file or modify the default configuration and click 'Send'.
+.. _sending configs:
 
-    .. _connected sensors data:
+Sending Configs
+===============
 
-#. Connected Sensors Data
+When the hand (controller) is powered on, it acts as a Wi-Fi access point, creating a small LAN for communication. To send your YAML file:
+  #. Connect to the hand's Wi-Fi network from your PC. Look for "smart_prosthesis" and enter the password: "100inIOT".
+  #. Open a web browser and navigate to "192.168.4.1" (the default IP address of the controller).
+  #. A text box will appear; paste your YAML file or modify the default configuration and click 'Send'.
+
+.. _connected sensors data:
+
+Connected Sensors Data
+======================
+
     Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_summary.
     
 
@@ -121,41 +126,51 @@ This section covers:
 
 .. _write hand function:
 
-#. Write A Hand Function
-    Hand functions are defined and implemented in ./main/hand_functions.ino.
-    The API for accessing hand elements (motors, sensors, etc.) can be found in ./main/classes.h.
-    Example for accessing a parameter defined in the YAML:
+Write A Hand Function
+=====================
 
-    To access `param1: 100` (from the YAML file), use `params["param1"]` in your function. For more details, see the examples in `./main/hand_functions.ino`.
-    (For more info see the examples in './main/hand_functions.ino')
+Hand functions are defined and implemented in ./main/hand_functions.ino.
+The API for accessing hand elements (motors, sensors, etc.) can be found in ./main/classes.h.
+Example for accessing a parameter defined in the YAML:
 
-    **note: After adding a new function, add it to the `func_map` defined in `./main/hand_functions.ino`.**
+To access `param1: 100` (from the YAML file), use `params["param1"]` in your function. For more details, see the examples in `./main/hand_functions.ino`.
+(For more info see the examples in './main/hand_functions.ino')
 
-    .. figure:: ./images/hand_functions_map.jpeg
-       :width: 30% 
+**note: After adding a new function, add it to the `func_map` defined in `./main/hand_functions.ino`.**
 
-    .. _Sending Data Via Wi-Fi:
+.. figure:: ./images/hand_functions_map.jpeg
+   :width: 30% 
 
-#. Sending Data Via Wi-Fi
-    There are 2 ways to send data via wifi:
-      #. Reglular client - wifi client that connects to the hand controller LAN, see wifi client example in './WIFI_client/WIFI_client.ino'
-         **note** the controller expects to get the payload as a string, which the first byte is the sensor id, followed by the values. 
-         we supply the function for converting thep payload from uint8_t to string and sending it to the wifi server (controller) - 'send_sensor_values' 
-         at './WIFI_client/WIFI_client.ino'.
-      #. Web page - for easier bebug, we support sending a simulated sensor values through a web page. Connect to the hand wifi and enter
-         '192.168.4.1/send_command'
+.. _Sending Data Via Wi-Fi:
 
-    .. _Sending Data Via BLE:
+Sending Data Via Wi-Fi
+======================
 
-#. Sending Data Via BLE
-    We support sending the data via BLE terminal (for example via the BLE scanner app). The device name on the BLE is 'smart_prosthesis'. The uuid for sending the
-    payload is 'e0198002-7544-42c1-0001-b24344b6aa70'
-    **note** Due to BLE limitations, we currently support sending payloads up to 20 bytes.
+There are 2 ways to send data via wifi:
+  #. Reglular client - wifi client that connects to the hand controller LAN, see wifi client example in './WIFI_client/WIFI_client.ino'
+     **note** the controller expects to get the payload as a string, which the first byte is the sensor id, followed by the values. 
+     we supply the function for converting thep payload from uint8_t to string and sending it to the wifi server (controller) - 'send_sensor_values' 
+     at './WIFI_client/WIFI_client.ino'.
+  #. Web page - for easier bebug, we support sending a simulated sensor values through a web page. Connect to the hand wifi and enter
+     '192.168.4.1/send_command'
 
-   
+.. _Sending Data Via BLE:
+
+Sending Data Via BLE
+====================
+
+We support sending data via a BLE terminal (e.g., the BLE Scanner app). The device name for the BLE is 'smart_prosthesis'.
+The UUID for sending the payload is'e0198002-7544-42c1-0001-b24344b6aa70'.
+
+**Note:** Due to BLE limitations, we currently support sending payloads up to 20 bytes.
+
+.. _Additional notes:
     
-
-
+Additional Notes:
+================
+    
+    
+     
 
 .. sectnum::
    :start: 1
