@@ -81,6 +81,13 @@ After the hand is configured, the system operates with three main flows, managed
 
 **note:** The threads communicate with shared resources, protected and synchronized with locks. 
 
+Class Diagram
+=============
+
+.. figure:: ./images/class_diagram.png
+   :width: 100%
+
+
 Admin (user) Instructions
 #########################
 
@@ -90,6 +97,8 @@ This section covers:
  #. Getting Data About Connected Sensors: `sensors activity`_
 
 .. _YAML structure:
+
+
 
 YAML sctucture
 ==============
