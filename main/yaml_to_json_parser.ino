@@ -102,8 +102,7 @@ void reset_before_new_configs(){
   vSemaphoreDelete(xMutex_payload);
 }
 
-
-void yaml_to_json(const char *yaml_str) {
+void yaml_to_json(const char *yaml_str, bool recreate_resources) {
   JsonDocument doc;
   DeserializationError error = deserializeYml(doc, yaml_str);
   if (error) {
@@ -116,16 +115,19 @@ void yaml_to_json(const char *yaml_str) {
   Serial.println(file_type);
   // Currently the system supports config_system file type, also used for sanity check for the yaml.
   if (strcmp(file_type, "config_system") == 0) {
-    reset_before_new_configs();
+    if (recreate_resources)
+      reset_before_new_configs();
     hand->clear_hand();
     config_system(doc);
     store_configs();
-    // Recreate the mutexes
-    xMutex_state = xSemaphoreCreateMutex();
-    xMutex_payload = xSemaphoreCreateMutex();
-    is_semaphore_being_deleted = false;
-    xTaskCreate(HW_management, "HW_management", STACK_SIZE ,NULL ,1, &hw_Management_Handle);
-    xTaskCreate(process_payload_and_manage_logic , "process_payload_and_manage_logic", STACK_SIZE ,NULL ,1, &process_Logic_Handle);
+    if (recreate_resources) {
+      // Recreate the mutexes
+      xMutex_state = xSemaphoreCreateMutex();
+      xMutex_payload = xSemaphoreCreateMutex();
+      is_semaphore_being_deleted = false;
+      xTaskCreate(HW_management, "HW_management", STACK_SIZE ,NULL ,1, &hw_Management_Handle);
+      xTaskCreate(process_payload_and_manage_logic , "process_payload_and_manage_logic", STACK_SIZE ,NULL ,1, &process_Logic_Handle);
+    }
   } else {
     Serial.print("Received unknown file type: ");
     Serial.println(file_type);

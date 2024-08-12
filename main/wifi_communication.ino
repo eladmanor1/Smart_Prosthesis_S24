@@ -12,7 +12,7 @@ extern SemaphoreHandle_t xMutex_payload;
 extern volatile bool is_semaphore_being_deleted;
 
 void process_payload_and_execute_command(const uint8_t* command_payload);
-void yaml_to_json(const char *yaml_str);
+void yaml_to_json(const char *yaml_str, bool recreate_resources);
 
 #define num_of_args 2
 
@@ -90,7 +90,7 @@ void get_configs_from_web() {
   if (server.method() == HTTP_POST) {
     // Get the multi-line text box content
     yaml_configs = server.arg("textbox");
-    yaml_to_json(yaml_configs.c_str());
+    yaml_to_json(yaml_configs.c_str(), true);
 
     // Send response back to the client
     server.send(200, "text/html", "<html><body><h1>Text received</h1></body></html>");

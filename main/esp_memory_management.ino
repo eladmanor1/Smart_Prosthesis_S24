@@ -12,7 +12,7 @@ void load_configs(){
   yaml_configs = preference.getString("yaml_configs", "empty");
   if(yaml_configs != "empty"){
     Serial.println("found configurations");
-    yaml_to_json(yaml_configs.c_str());
+    yaml_to_json(yaml_configs.c_str(), false);
   } else {
     Serial.println("didn't find old configurations");
   }
