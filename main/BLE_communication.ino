@@ -77,6 +77,9 @@ void sensorServiceSetup(BLEServer *pServer) {
     SENSOR_ON_WRITE_CHARACTERISTIC_UUID,
     BLECharacteristic::PROPERTY_WRITE);
   pSensorOnWriteCharacteristic->setCallbacks(new SensorCallbacks());
+  BLEDescriptor *pDescriptor = new BLEDescriptor(BLEUUID((uint16_t)0x2901));
+  pDescriptor->setValue("Send sensor data");
+  pSensorOnWriteCharacteristic->addDescriptor(pDescriptor);
   pSensorService->start();
 }
 

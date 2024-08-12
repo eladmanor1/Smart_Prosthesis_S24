@@ -1,11 +1,12 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <Base64.h>
 
 const char* ssid = "Smart_Prosthesis";       
 const char* password = "100inIOT";
 // The default IP within the access point to communicate with the hand is 192.168.4.1  
 const char* serverName = "http://192.168.4.1/sensor_data"; 
+#define ROTATION_SENSOR_PIN 33  // Use GPIO 33 or any other available GPIO pin
+
 
 void connect_to_wifi() {
   WiFi.begin(ssid, password);
@@ -19,6 +20,7 @@ void connect_to_wifi() {
 void setup() {
   Serial.begin(115200);
   delay(7000);
+  pinMode(ROTATION_SENSOR_PIN, INPUT);
   connect_to_wifi();
 }
 
@@ -28,7 +30,10 @@ void send_sensor_values(uint8_t *payload, int payload_len) {
     String payloadStr = "";
     for (size_t i = 0; i < payload_len; i++) {
       if (i > 0) payloadStr += ",";
-      Serial.print(payload[i]);
+      Serial.print("payload [");
+      Serial.print(i);
+      Serial.print("]: ");
+      Serial.println(payload[i]);
       payloadStr += String(payload[i]);
     }
 
@@ -48,21 +53,26 @@ void send_sensor_values(uint8_t *payload, int payload_len) {
     http.end();
 }
 
-// In this example, we send a sensor value every second, with sensor id = 1.
+// In this example, we send a sensor value every 2 seconds, with sensor id = 1.
 uint8_t value = 0;
+int sensorValue = 0;
 void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     uint8_t id = 1;
     // First byte of the payload is always the sensor id, followed by the sensor values.
-    uint8_t payload[2] = {id, value};
     value++;
+    sensorValue = analogRead(ROTATION_SENSOR_PIN);
+    Serial.print("Sensor Value before: ");
+    Serial.println(sensorValue);
+    sensorValue = (int)map(sensorValue, 0, 4095, 0, 255);
+    Serial.print("Sensor Value after: ");
+    Serial.println(sensorValue);
+    uint8_t payload[2] = {id, (uint8_t)sensorValue};
     send_sensor_values(payload, sizeof(payload));
+    
   } else {
     Serial.println("WiFi Disconnected. Attempting to reconnect...");
     connect_to_wifi();
   }
-  delay(1000); // Send data every second
-  if (value > 20) {
-    value = 0;
-  }
+  delay(2000); // Send data every second
 }
