@@ -28,7 +28,8 @@ Configuration
 
 The configuration of the hand consists of two main parts:
 
-#. The system either loads from memory or receives from the user a YAML file
+#. YAML file -
+    The system either loads from memory or receives from the user a YAML file
     that specifies the system components. This allows for full flexibility in modifying the hand structure in the future.
     The YAML file also associates sensors with their target functionalities (see `functionality`_).
 
@@ -59,7 +60,7 @@ Operation
 *********
 
 .. figure:: ./images/operation_diagram.png
-   :width: 40%
+   :width: 55%
 
 
 After the hand is configured, the system operates with three main flows, managed by three threads:
@@ -111,7 +112,10 @@ When the hand (controller) is powered on, it acts as a Wi-Fi access point, creat
 Sensors Activity
 ================
 
-    Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_activity.
+Connect to the hand's Wi-Fi network as described above and access the page at 192.168.4.1/sensors_activity.
+
+.. figure:: ./images/sensors_activity.jpeg
+   :width: 50%
     
 
 Developer Instructions
@@ -154,13 +158,18 @@ There are 2 ways to send data via wifi:
   #. Web page - for easier bebug, we support sending a simulated sensor values through a web page. Connect to the hand wifi and enter
      '192.168.4.1/send_command'
 
+An image of the web page for sending commands:
+
+.. figure:: ./images/send_command_page.jpeg
+   :width: 50%
+
 .. _Sending Data Via BLE:
 
 Sending Data Via BLE
 ====================
 
 We support sending data via a BLE terminal (e.g., the BLE Scanner app). The device name for the BLE is 'smart_prosthesis'.
-The UUID for sending the payload is'e0198002-7544-42c1-0001-b24344b6aa70'.
+The UUID for sending the payload is 'e0198002-7544-42c1-0001-b24344b6aa70'.
 
 **Note:** Due to BLE limitations, we currently support sending payloads up to 20 bytes.
 
