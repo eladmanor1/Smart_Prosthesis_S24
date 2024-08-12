@@ -79,6 +79,8 @@ After the hand is configured, the system operates with three main flows, managed
 .. figure:: ./images/threads_communication.png
    :width: 100%
 
+**note:** The threads communicate with shared resources, protected and synchronized with locks. 
+
 Admin (user) Instructions
 #########################
 
