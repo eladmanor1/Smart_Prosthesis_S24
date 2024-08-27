@@ -210,11 +210,11 @@ Poster
 
 
 
-**POV: project last day and still don't have the hand**
-########################################################
+.. **POV: project last day and still don't have the hand**
+.. ########################################################
 
-.. figure:: ./images/pov_project_last_day_and_still_dont_have_the_hand.jpeg
-   :width: 100%
+.. .. figure:: ./images/pov_project_last_day_and_still_dont_have_the_hand.jpeg
+..    :width: 100%
 
 .. sectnum::
    :start: 1
