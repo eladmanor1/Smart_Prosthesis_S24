@@ -118,7 +118,7 @@ Sending Configs
 When the hand (controller) is powered on, it acts as a Wi-Fi access point, creating a small LAN for communication. To send your YAML file:
   #. Connect to the hand's Wi-Fi network from your PC. Look for "smart_prosthesis" and enter the password: "100inIOT".
   #. Open a web browser and navigate to "192.168.4.1" (the default IP address of the controller).
-  #. A text box will appear; paste your YAML file or modify the default configuration and click 'Send'.
+  #. a text box will appear; paste your YAML file or modify the default configuration and click 'Send'.
 
 .. _sensors activity:
 
@@ -163,11 +163,11 @@ Sending Data Via Wi-Fi
 ======================
 
 There are 2 ways to send data via wifi:
-  #. Reglular client - wifi client that connects to the hand controller LAN, see wifi client example in './WIFI_client/WIFI_client.ino'
+  #. Regular client - wifi client that connects to the hand controller LAN, see wifi client example in './WIFI_client/WIFI_client.ino'
      **note** the controller expects to get the payload as a string, which the first byte is the sensor id, followed by the values. 
-     we supply the function for converting thep payload from uint8_t to string and sending it to the wifi server (controller) - 'send_sensor_values' 
+     we supply the function for converting the payload from uint8_t to string and sending it to the wifi server (controller) - 'send_sensor_values' 
      at './WIFI_client/WIFI_client.ino'.
-  #. Web page - for easier bebug, we support sending a simulated sensor values through a web page. Connect to the hand wifi and enter
+  #. Web page - for easier **debug**, we support sending a simulated sensor values through a web page. Connect to the hand wifi and enter
      '192.168.4.1/send_command'
 
 An image of the web page for sending commands:
